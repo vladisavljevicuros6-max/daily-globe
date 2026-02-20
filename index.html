@@ -6,19 +6,19 @@
     <meta name="mobile-web-app-capable" content="yes">
     <title>Daily Globe</title>
     <style>
-        :root { --bg: #f2f2f7; --card: #ffffff; --tint: #007aff; --text: #1c1c1e; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
+        :root { --bg: #f4f4f9; --card: #ffffff; --tint: #007aff; --text: #1c1c1e; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
         .container { max-width: 450px; margin: 0 auto; }
-        h1 { font-size: 38px; font-weight: 900; color: var(--tint); text-align: center; }
-        .card { background: var(--card); border-radius: 24px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-bottom: 20px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
-        .chip { background: var(--bg); padding: 16px; border-radius: 15px; text-align: center; font-weight: 700; cursor: pointer; border: 2px solid transparent; }
-        .chip.active { border-color: var(--tint); background: rgba(0,122,255,0.1); color: var(--tint); }
-        input { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #eee; margin: 15px 0; box-sizing: border-box; }
-        button.action { background: var(--tint); color: white; border: none; width: 100%; padding: 20px; border-radius: 18px; font-size: 18px; font-weight: 800; cursor: pointer; }
-        #status { text-align: center; margin-top: 15px; font-size: 14px; font-weight: 700; color: var(--tint); }
-        #output { display: none; line-height: 1.6; font-size: 17px; margin-top: 20px; }
-        .log { font-family: monospace; font-size: 10px; color: red; text-align: center; margin-top: 10px; }
+        h1 { font-size: 34px; font-weight: 900; color: var(--tint); text-align: center; margin-bottom: 25px; }
+        .card { background: var(--card); border-radius: 20px; padding: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.06); margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
+        .chip { background: #eee; padding: 15px; border-radius: 12px; text-align: center; font-weight: 700; cursor: pointer; transition: 0.2s; border: 2px solid transparent; }
+        .chip.active { border-color: var(--tint); background: #e7f2ff; color: var(--tint); }
+        input { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #ddd; margin: 15px 0; box-sizing: border-box; font-size: 16px; }
+        button.action { background: var(--tint); color: white; border: none; width: 100%; padding: 18px; border-radius: 15px; font-size: 18px; font-weight: 800; cursor: pointer; }
+        #status { text-align: center; margin-top: 15px; font-weight: 700; color: #555; }
+        #output { display: none; line-height: 1.6; font-size: 16px; border-top: 1px solid #eee; padding-top: 20px; }
+        .error-log { color: #ff3b30; font-size: 11px; font-family: monospace; text-align: center; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -26,96 +26,96 @@
 <div class="container">
     <h1>Daily Globe</h1>
 
-    <div id="setup" class="card">
-        <p style="text-align:center; font-weight:700;">Enter Access Key</p>
-        <input type="password" id="keyInput" placeholder="hf_...">
-        <button class="action" onclick="saveKey()">Connect App</button>
+    <div id="login" class="card">
+        <p style="text-align:center; font-weight:700;">Connect Access Key</p>
+        <input type="password" id="tokenInput" placeholder="Paste hf_... here">
+        <button class="action" onclick="save()">Enter</button>
     </div>
 
     <div id="app" style="display:none;">
         <div class="card">
             <div class="grid">
-                <div class="chip" onclick="this.classList.toggle('active')">Science</div>
-                <div class="chip" onclick="this.classList.toggle('active')">Sport</div>
+                <div class="chip" onclick="this.classList.toggle('active')">Sports</div>
+                <div class="chip" onclick="this.classList.toggle('active')">Gaming</div>
                 <div class="chip" onclick="this.classList.toggle('active')">Tech</div>
-                <div class="chip" onclick="this.classList.toggle('active')">Cars</div>
+                <div class="chip" onclick="this.classList.toggle('active')">Music</div>
             </div>
-            <button class="action" onclick="generate()">Generate Report</button>
+            <button class="action" onclick="generate()">Generate News</button>
             <div id="status">Ready</div>
-            <div id="debugLog" class="log"></div>
-            <p onclick="resetKey()" style="font-size:10px; text-align:center; color:#888; margin-top:15px; cursor:pointer;">Reset Key</p>
+            <div id="debug" class="error-log"></div>
+            <p onclick="localStorage.clear(); location.reload();" style="text-align:center; font-size:10px; color:gray; cursor:pointer; margin-top:15px;">Clear Token</p>
         </div>
         <div id="output" class="card"></div>
     </div>
 </div>
 
 <script>
-    function saveKey() {
-        const k = document.getElementById('keyInput').value.trim();
-        if(k.startsWith('hf_')) {
-            localStorage.setItem('dg_key', k);
-            init();
-        } else { alert("Key must start with hf_"); }
+    function save() {
+        const val = document.getElementById('tokenInput').value.trim();
+        if(val.startsWith('hf_')) {
+            localStorage.setItem('user_token', val);
+            check();
+        } else { alert("Token must start with hf_"); }
     }
 
-    function resetKey() {
-        localStorage.removeItem('dg_key');
-        location.reload();
-    }
-
-    function init() {
-        if(localStorage.getItem('dg_key')) {
-            document.getElementById('setup').style.display = 'none';
+    function check() {
+        if(localStorage.getItem('user_token')) {
+            document.getElementById('login').style.display = 'none';
             document.getElementById('app').style.display = 'block';
         }
     }
 
     async function generate() {
-        const topics = Array.from(document.querySelectorAll('.chip.active')).map(c => c.innerText);
-        if(!topics.length) return alert("Select a topic!");
+        const chips = Array.from(document.querySelectorAll('.chip.active')).map(c => c.innerText);
+        if(!chips.length) return alert("Select a topic!");
 
         const status = document.getElementById('status');
         const output = document.getElementById('output');
-        const debug = document.getElementById('debugLog');
-        
-        status.innerText = "Connecting...";
+        const debug = document.getElementById('debug');
+
+        status.innerText = "🛰️ Sending through Proxy...";
         debug.innerText = "";
+        output.style.display = "none";
+
+        const token = localStorage.getItem('user_token');
+        
+        // This is the Magic: We wrap the URL in corsproxy.io
+        const rawUrl = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2";
+        const proxiedUrl = `https://corsproxy.io/?${encodeURIComponent(rawUrl)}`;
 
         try {
-            const response = await fetch("https://api-inference.huggingface.co/models/meta-llama/Llama-3.2-1B-Instruct", {
+            const res = await fetch(proxiedUrl, {
                 method: "POST",
                 headers: { 
-                    "Authorization": "Bearer " + localStorage.getItem('dg_key').trim(),
+                    "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ 
-                    inputs: "Write 3 teen news points about " + topics.join(", ") + " with emojis.",
-                    parameters: { max_new_tokens: 300, wait_for_model: true }
-                }),
+                body: JSON.stringify({
+                    inputs: `[INST] Write 3 short viral news headlines for teens about ${chips.join(", ")}. Use emojis. [/INST]`,
+                    parameters: { max_new_tokens: 250, wait_for_model: true }
+                })
             });
 
-            if (!response.ok) {
-                const err = await response.json();
-                debug.innerText = "Error: " + (err.error || response.status);
-                status.innerText = "Connection Failed";
-                return;
+            const data = await res.json();
+
+            if (res.ok) {
+                const text = data[0].generated_text.split('[/INST]')[1] || data[0].generated_text;
+                output.innerHTML = text.replace(/\n/g, '<br>');
+                output.style.display = "block";
+                status.innerText = "✨ News Delivered!";
+            } else {
+                status.innerText = "❌ AI Rejected Key";
+                debug.innerText = data.error || "Unknown Error";
             }
 
-            const result = await response.json();
-            const text = result[0]?.generated_text || "No response received.";
-            
-            output.innerHTML = text.replace(/\n/g, '<br>');
-            output.style.display = "block";
-            status.innerText = "Success!";
-
-        } catch (e) {
-            status.innerText = "CORS / Network Error";
-            debug.innerText = "Browser blocked the call. Check console (F12).";
-            console.error(e);
+        } catch (err) {
+            status.innerText = "❌ Proxy Blocked";
+            debug.innerText = "Possible AdBlocker interference. Check Console (F12).";
         }
     }
 
-    init();
+    check();
 </script>
 </body>
 </html>
+
