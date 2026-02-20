@@ -5,131 +5,144 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Daily Globe</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         :root { --bg: #f2f2f7; --card: #ffffff; --tint: #007aff; --text: #1c1c1e; }
         [data-theme="dark"] { --bg: #000; --card: #1c1c1e; --text: #fff; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
-        .container { max-width: 500px; margin: 0 auto; }
-        h1 { font-size: 34px; font-weight: 800; color: var(--tint); margin-bottom: 5px; text-align: center; }
-        .card { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.1); }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
-        .chip { background: var(--bg); padding: 15px; border-radius: 12px; text-align: center; font-weight: 700; cursor: pointer; border: 2px solid transparent; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; padding-top: env(safe-area-inset-top); }
+        .container { max-width: 450px; margin: 0 auto; }
+        h1 { font-size: 38px; font-weight: 900; color: var(--tint); margin-bottom: 10px; letter-spacing: -1.5px; }
+        .card { background: var(--card); border-radius: 24px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-bottom: 20px; }
+        
+        /* Simpler Login */
+        .login-box { text-align: center; }
+        input { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #eee; margin: 15px 0; box-sizing: border-box; font-size: 16px; }
+        
+        /* App Grid */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+        .chip { background: var(--bg); padding: 16px; border-radius: 15px; text-align: center; font-weight: 700; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
         .chip.active { border-color: var(--tint); background: rgba(0,122,255,0.1); color: var(--tint); }
         
-        /* Token Input Styling */
-        .token-box { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-        input { padding: 12px; border-radius: 10px; border: 1px solid #ccc; font-size: 14px; }
-        
-        button#go { background: var(--tint); color: white; border: none; width: 100%; padding: 20px; border-radius: 18px; font-size: 18px; font-weight: 800; cursor: pointer; }
+        button.action { background: var(--tint); color: white; border: none; width: 100%; padding: 20px; border-radius: 18px; font-size: 18px; font-weight: 800; cursor: pointer; }
         #status { text-align: center; margin-top: 15px; font-size: 14px; font-weight: 700; color: var(--tint); }
-        #news-box { display: none; line-height: 1.6; font-size: 17px; }
-        .settings-btn { font-size: 12px; color: #888; background: none; border: none; cursor: pointer; margin-top: 10px; width: 100%; }
+        #log { font-family: monospace; font-size: 10px; color: #ff3b30; text-align: center; margin-top: 10px; }
+        #output { display: none; line-height: 1.6; font-size: 17px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>Daily Globe</h1>
-    
-    <div id="setup" class="card token-box">
-        <label style="font-weight: 800;">🔑 Enter Access Key</label>
-        <input type="password" id="tokenInput" placeholder="Paste hf_... token here">
-        <button onclick="saveToken()" style="background:var(--text); color:var(--card); border:none; padding:10px; border-radius:10px; font-weight:bold;">Save to Device</button>
+
+    <div id="loginScreen" class="card login-box">
+        <p style="font-weight:700;">Enter your Daily Globe Access Key</p>
+        <input type="password" id="keyInput" placeholder="hf_...">
+        <button class="action" onclick="saveKey()">Activate App</button>
     </div>
 
-    <div id="mainApp" style="display:none;">
+    <div id="appScreen" style="display:none;">
         <div class="card">
+            <div id="weather" style="font-size:14px; opacity:0.6; margin-bottom:15px; font-weight:600;">📍 Syncing Satellites...</div>
             <div class="grid">
                 <div class="chip" onclick="this.classList.toggle('active')">Science</div>
                 <div class="chip" onclick="this.classList.toggle('active')">Sport</div>
                 <div class="chip" onclick="this.classList.toggle('active')">Tech</div>
-                <div class="chip" onclick="this.classList.toggle('active')">Business</div>
                 <div class="chip" onclick="this.classList.toggle('active')">Cars</div>
             </div>
-            <button id="go" onclick="generateReport()">Generate Report</button>
+            <button class="action" onclick="generate()">Generate News</button>
             <div id="status">Ready</div>
-            <button class="settings-btn" onclick="clearToken()">Reset Access Key</button>
+            <div id="log"></div>
+            <p onclick="resetKey()" style="font-size:11px; text-align:center; color:#888; margin-top:15px; text-decoration:underline;">Change Access Key</p>
         </div>
-        <div id="news-box" class="card"></div>
+        <div id="output" class="card"></div>
     </div>
 </div>
 
 <script>
-    // --- Token Management ---
-    function saveToken() {
-        const val = document.getElementById('tokenInput').value;
-        if (val.startsWith('hf_')) {
-            localStorage.setItem('dg_token', val);
-            checkAuth();
+    // Handle the Key
+    function saveKey() {
+        const k = document.getElementById('keyInput').value.trim();
+        if(k.startsWith('hf_')) {
+            localStorage.setItem('dg_key', k);
+            init();
         } else {
-            alert("Invalid token! Make sure it starts with hf_");
+            alert("Key must start with hf_");
         }
     }
 
-    function checkAuth() {
-        const saved = localStorage.getItem('dg_token');
-        if (saved) {
-            document.getElementById('setup').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-        } else {
-            document.getElementById('setup').style.display = 'flex';
-            document.getElementById('mainApp').style.display = 'none';
-        }
-    }
-
-    function clearToken() {
-        localStorage.removeItem('dg_token');
+    function resetKey() {
+        localStorage.removeItem('dg_key');
         location.reload();
     }
 
-    // --- News Generation ---
-    async function generateReport() {
+    function init() {
+        const saved = localStorage.getItem('dg_key');
+        if(saved) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('appScreen').style.display = 'block';
+        }
+    }
+
+    async function generate() {
         const topics = Array.from(document.querySelectorAll('.chip.active')).map(c => c.innerText);
         if(!topics.length) return alert("Select a topic!");
 
-        const token = localStorage.getItem('dg_token');
+        const key = localStorage.getItem('dg_key');
         const status = document.getElementById('status');
-        const newsBox = document.getElementById('news-box');
+        const log = document.getElementById('log');
+        const output = document.getElementById('output');
 
-        status.innerText = "🛰️ Satellite Connecting...";
-        newsBox.style.display = "none";
+        status.innerText = "🛰️ Connecting to AI...";
+        log.innerText = "";
+        output.style.display = "none";
 
         try {
             const res = await fetch("https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2", {
                 method: "POST",
-                headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                headers: { 
+                    "Authorization": `Bearer ${key}`,
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify({
-                    inputs: `[INST] You are Daily Globe. Write a teen news digest about ${topics.join(", ")}. Use emojis and bold titles. [/INST]`,
-                    parameters: { max_new_tokens: 500, wait_for_model: true }
+                    inputs: `[INST] You are the Daily Globe. Write 3 short teen news summaries about ${topics.join(", ")}. Use emojis. [/INST]`,
+                    parameters: { max_new_tokens: 400, wait_for_model: true }
                 })
             });
 
             const data = await res.json();
 
+            if (res.status === 401) {
+                log.innerText = "ERROR 401: Your token is invalid or deactivated.";
+                status.innerText = "❌ Key Blocked";
+                return;
+            }
+
             if (data.estimated_time) {
-                status.innerText = `Waking up... ${Math.round(data.estimated_time)}s`;
-                setTimeout(generateReport, 5000);
+                status.innerText = `AI Waking Up... ${Math.round(data.estimated_time)}s`;
+                setTimeout(generate, 5000);
                 return;
             }
 
-            if (data.error) {
-                status.innerText = "❌ Access Denied. Is your key correct?";
-                return;
-            }
-
-            const raw = data[0].generated_text;
-            const clean = raw.includes('[/INST]') ? raw.split('[/INST]')[1] : raw;
-            newsBox.innerHTML = clean.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
-            newsBox.style.display = "block";
+            const rawText = data[0].generated_text;
+            const clean = rawText.includes('[/INST]') ? rawText.split('[/INST]')[1] : rawText;
+            output.innerHTML = clean.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+            output.style.display = "block";
             status.innerText = "✨ Success!";
 
         } catch (e) {
-            status.innerText = "❌ Connection Error";
+            status.innerText = "❌ Connection Failed";
+            log.innerText = "Reason: " + e.message + ". Try turning off VPN or Content Blockers.";
         }
     }
 
-    // Initialize
-    checkAuth();
+    // Simple Weather
+    navigator.geolocation.getCurrentPosition(async (p) => {
+        const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${p.coords.latitude}&longitude=${p.coords.longitude}&current_weather=true`);
+        const d = await r.json();
+        document.getElementById('weather').innerText = `📍 Weather: ${Math.round(d.current_weather.temperature)}°C`;
+    }, () => { document.getElementById('weather').innerText = "📍 Satellite Sync Active"; });
+
+    init();
 </script>
 </body>
 </html>
