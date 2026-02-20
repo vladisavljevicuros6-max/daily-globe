@@ -5,36 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Daily Globe</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://via.placeholder.com/192/000/fff?text=DG">
     <style>
-        :root { --bg: #f8f9fa; --txt: #212529; --primary: #1a73e8; --card: #ffffff; }
-        [data-theme="dark"] { --bg: #000; --txt: #f0f2f5; --primary: #4da3ff; --card: #1c1c1e; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--txt); margin: 0; padding: 20px; padding-top: env(safe-area-inset-top, 20px); }
+        :root { --bg: #f2f2f7; --card: #ffffff; --tint: #007aff; --text: #1c1c1e; }
+        [data-theme="dark"] { --bg: #000; --card: #1c1c1e; --text: #fff; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
         .container { max-width: 500px; margin: 0 auto; }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        h1 { margin: 0; font-size: 32px; font-weight: 800; color: var(--primary); }
-        #weather { font-size: 14px; margin-bottom: 10px; font-weight: 600; color: var(--primary); }
-        .card { background: var(--card); padding: 20px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); margin-bottom: 20px; }
+        h1 { font-size: 34px; font-weight: 800; color: var(--tint); margin-bottom: 5px; text-align: center; }
+        .card { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.1); }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
-        .chip { padding: 12px; border: 2px solid #eee; border-radius: 12px; text-align: center; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
-        button#go { background: var(--primary); color: white; border: none; width: 100%; padding: 18px; border-radius: 15px; font-size: 18px; font-weight: bold; cursor: pointer; }
-        #status { text-align: center; margin-top: 15px; font-size: 14px; font-weight: bold; color: var(--primary); min-height: 20px; }
-        #output { display: none; line-height: 1.6; font-size: 17px; margin-top: 10px; }
-        .error-btn { color: red; text-decoration: underline; cursor: pointer; margin-top: 5px; display: block; }
+        .chip { background: var(--bg); padding: 15px; border-radius: 12px; text-align: center; font-weight: 700; cursor: pointer; border: 2px solid transparent; }
+        .chip.active { border-color: var(--tint); background: rgba(0,122,255,0.1); color: var(--tint); }
+        
+        /* Token Input Styling */
+        .token-box { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        input { padding: 12px; border-radius: 10px; border: 1px solid #ccc; font-size: 14px; }
+        
+        button#go { background: var(--tint); color: white; border: none; width: 100%; padding: 20px; border-radius: 18px; font-size: 18px; font-weight: 800; cursor: pointer; }
+        #status { text-align: center; margin-top: 15px; font-size: 14px; font-weight: 700; color: var(--tint); }
+        #news-box { display: none; line-height: 1.6; font-size: 17px; }
+        .settings-btn { font-size: 12px; color: #888; background: none; border: none; cursor: pointer; margin-top: 10px; width: 100%; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1>Daily Globe</h1>
-            <button onclick="document.body.toggleAttribute('data-theme')" style="background:none; border:none; font-size:24px;">🌓</button>
-        </header>
+<div class="container">
+    <h1>Daily Globe</h1>
+    
+    <div id="setup" class="card token-box">
+        <label style="font-weight: 800;">🔑 Enter Access Key</label>
+        <input type="password" id="tokenInput" placeholder="Paste hf_... token here">
+        <button onclick="saveToken()" style="background:var(--text); color:var(--card); border:none; padding:10px; border-radius:10px; font-weight:bold;">Save to Device</button>
+    </div>
 
-        <div id="weather">📍 Finding your location...</div>
-
+    <div id="mainApp" style="display:none;">
         <div class="card">
             <div class="grid">
                 <div class="chip" onclick="this.classList.toggle('active')">Science</div>
@@ -43,42 +46,60 @@
                 <div class="chip" onclick="this.classList.toggle('active')">Business</div>
                 <div class="chip" onclick="this.classList.toggle('active')">Cars</div>
             </div>
-            <button id="go" onclick="generate()">Generate Report</button>
-            <div id="status"></div>
+            <button id="go" onclick="generateReport()">Generate Report</button>
+            <div id="status">Ready</div>
+            <button class="settings-btn" onclick="clearToken()">Reset Access Key</button>
         </div>
-
-        <div id="output" class="card"></div>
+        <div id="news-box" class="card"></div>
     </div>
+</div>
 
 <script>
-    // TOKENS: Broken into pieces to stay invisible to GitHub
-    const p1 = "hf_";
-    const p2 = "WNQyiQaBmhNea";
-    const p3 = "sgedQuzwFoi";
-    const p4 = "IOyWMpYmYV";
-    const getAuth = () => p1 + p2 + p3 + p4;
+    // --- Token Management ---
+    function saveToken() {
+        const val = document.getElementById('tokenInput').value;
+        if (val.startsWith('hf_')) {
+            localStorage.setItem('dg_token', val);
+            checkAuth();
+        } else {
+            alert("Invalid token! Make sure it starts with hf_");
+        }
+    }
 
-    let userTemp = "mild";
+    function checkAuth() {
+        const saved = localStorage.getItem('dg_token');
+        if (saved) {
+            document.getElementById('setup').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+        } else {
+            document.getElementById('setup').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+        }
+    }
 
-    async function generate() {
+    function clearToken() {
+        localStorage.removeItem('dg_token');
+        location.reload();
+    }
+
+    // --- News Generation ---
+    async function generateReport() {
         const topics = Array.from(document.querySelectorAll('.chip.active')).map(c => c.innerText);
-        if(!topics.length) return alert("Please select a topic first!");
+        if(!topics.length) return alert("Select a topic!");
 
+        const token = localStorage.getItem('dg_token');
         const status = document.getElementById('status');
-        const output = document.getElementById('output');
-        const btn = document.getElementById('go');
+        const newsBox = document.getElementById('news-box');
 
-        status.innerHTML = "🛰️ Connecting to satellites...";
-        output.style.display = "none";
-        btn.disabled = true;
+        status.innerText = "🛰️ Satellite Connecting...";
+        newsBox.style.display = "none";
 
         try {
-            // Using a very reliable model: Google Gemma
-            const res = await fetch("https://api-inference.huggingface.co/models/google/gemma-1.1-7b-it", {
+            const res = await fetch("https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2", {
                 method: "POST",
-                headers: { "Authorization": `Bearer ${getAuth()}`, "Content-Type": "application/json" },
+                headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    inputs: `You are the Daily Globe. The weather is ${userTemp}. Write a teen news report about ${topics.join(", ")}. Use bold titles and emojis.`,
+                    inputs: `[INST] You are Daily Globe. Write a teen news digest about ${topics.join(", ")}. Use emojis and bold titles. [/INST]`,
                     parameters: { max_new_tokens: 500, wait_for_model: true }
                 })
             });
@@ -86,40 +107,29 @@
             const data = await res.json();
 
             if (data.estimated_time) {
-                let wait = Math.round(data.estimated_time);
-                status.innerText = `Daily Globe is waking up... ${wait}s`;
-                setTimeout(generate, 5000); 
+                status.innerText = `Waking up... ${Math.round(data.estimated_time)}s`;
+                setTimeout(generateReport, 5000);
                 return;
             }
 
             if (data.error) {
-                status.innerHTML = `⚠️ System Busy. <span class="error-btn" onclick="generate()">Tap to retry</span>`;
-                console.log(data.error);
+                status.innerText = "❌ Access Denied. Is your key correct?";
                 return;
             }
 
-            let text = data[0].generated_text || data.generated_text;
-            // Cleaning up the AI response
-            text = text.replace("You are the Daily Globe.", "");
-            
-            output.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
-            output.style.display = "block";
-            status.innerText = "✨ Report Complete!";
+            const raw = data[0].generated_text;
+            const clean = raw.includes('[/INST]') ? raw.split('[/INST]')[1] : raw;
+            newsBox.innerHTML = clean.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+            newsBox.style.display = "block";
+            status.innerText = "✨ Success!";
+
         } catch (e) {
-            status.innerHTML = `❌ Connection Error. <span class="error-btn" onclick="location.reload()">Refresh App</span>`;
-        } finally {
-            btn.disabled = false;
+            status.innerText = "❌ Connection Error";
         }
     }
 
-    navigator.geolocation.getCurrentPosition(async p => {
-        try {
-            const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${p.coords.latitude}&longitude=${p.coords.longitude}&current_weather=true`);
-            const d = await r.json();
-            userTemp = Math.round(d.current_weather.temperature) + "°C";
-            document.getElementById('weather').innerText = `📍 Weather: ${userTemp}`;
-        } catch(e) { document.getElementById('weather').innerText = "📍 Weather: Online"; }
-    }, () => { document.getElementById('weather').innerText = "📍 Weather: Global"; });
+    // Initialize
+    checkAuth();
 </script>
 </body>
 </html>
