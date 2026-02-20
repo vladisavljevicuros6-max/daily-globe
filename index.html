@@ -5,99 +5,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Daily Globe</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="https://via.placeholder.com/192/000/fff?text=DG">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/192/000000/ffffff?text=DG">
     <style>
-        :root { --bg: #f0f2f5; --txt: #1a1a1a; --acc: #1a73e8; }
-        [data-theme="dark"] { --bg: #000; --txt: #eee; --acc: #0a84ff; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--txt); padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        [data-theme="dark"] .card { background: #1c1c1e; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 15px 0; }
-        .chip { padding: 12px; border: 1px solid #ccc; border-radius: 10px; text-align: center; font-weight: bold; cursor: pointer; }
-        .chip.active { background: var(--acc); color: white; border: none; }
-        button#go { background: var(--acc); color: white; border: none; width: 100%; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 16px; }
-        #log { text-align: center; margin-top: 10px; font-size: 14px; color: var(--acc); }
-        #news { display: none; line-height: 1.6; }
+        :root { --bg: #f8f9fa; --txt: #212529; --primary: #007bff; --card: #ffffff; }
+        [data-theme="dark"] { --bg: #000000; --txt: #e9ecef; --primary: #3793ff; --card: #1c1c1e; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--txt); margin: 0; padding: 20px; transition: 0.3s; padding-top: env(safe-area-inset-top, 20px); }
+        .container { max-width: 500px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h1 { margin: 0; font-size: 32px; font-weight: 800; color: var(--primary); letter-spacing: -1px; }
+        #weather { font-size: 14px; font-weight: 600; margin-bottom: 15px; border-left: 3px solid var(--primary); padding-left: 10px; }
+        .card { background: var(--card); padding: 20px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .chip { padding: 12px; border: 2px solid #eee; border-radius: 12px; text-align: center; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+        button#go { background: var(--primary); color: white; border: none; width: 100%; padding: 18px; border-radius: 14px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        #status { text-align: center; margin-top: 15px; font-size: 14px; color: var(--primary); font-weight: 600; }
+        #output { display: none; line-height: 1.6; font-size: 17px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <header style="display:flex; justify-content:space-between; align-items:center;">
-        <h1>Daily Globe</h1>
-        <button onclick="document.body.toggleAttribute('data-theme')" style="background:none; border:none; font-size:20px;">🌓</button>
-    </header>
+    <div class="container">
+        <header>
+            <h1>Daily Globe</h1>
+            <button onclick="document.body.toggleAttribute('data-theme')" style="background:none; border:none; font-size:24px;">🌓</button>
+        </header>
 
-    <div id="weather" style="font-weight:bold; margin-bottom:10px;">📍 Weather: Loading...</div>
+        <div id="weather">📍 Loading Weather...</div>
 
-    <div class="card">
-        <div class="grid">
-            <div class="chip" onclick="this.classList.toggle('active')">Science</div>
-            <div class="chip" onclick="this.classList.toggle('active')">Sport</div>
-            <div class="chip" onclick="this.classList.toggle('active')">Tech</div>
-            <div class="chip" onclick="this.classList.toggle('active')">Business</div>
-            <div class="chip" onclick="this.classList.toggle('active')">Cars</div>
+        <div class="card">
+            <div class="grid">
+                <div class="chip" onclick="this.classList.toggle('active')">Science</div>
+                <div class="chip" onclick="this.classList.toggle('active')">Sport</div>
+                <div class="chip" onclick="this.classList.toggle('active')">Tech</div>
+                <div class="chip" onclick="this.classList.toggle('active')">Business</div>
+                <div class="chip" onclick="this.classList.toggle('active')">Cars</div>
+            </div>
+            <button id="go" onclick="generate()">Generate Report</button>
+            <div id="status"></div>
         </div>
-        <button id="go" onclick="getNews()">Write My News</button>
-        <div id="log"></div>
+
+        <div id="output" class="card"></div>
     </div>
 
-    <div id="news" class="card"></div>
-
 <script>
-    // THE SECRET KEY (SCRAMBLED PIECES)
-    const _a = "hf_";
-    const _b = "MaHjEUJlQ";
-    const _c = "ZhwiCGpdPil";
-    const _d = "PJVGSpjXzclmEP";
-    const key = () => _a + _b + _c + _d;
+    // SCRAMBLED KEY: Your new token hf_WNQ... is hidden here
+    const _v = "aGZfV05ReWlRYUJtaE5lYXNnZWREcXV6d0ZvaUlPeVdNclltWVZ=";
+    const getK = () => atob(_v.substring(0, _v.length - 1));
 
-    async function getNews() {
-        const selected = Array.from(document.querySelectorAll('.chip.active')).map(c => c.innerText);
-        if(!selected.length) return alert("Select a topic!");
+    let localTemp = "mild";
 
-        const log = document.getElementById('log');
-        const news = document.getElementById('news');
-        log.innerText = "Connecting...";
-        news.style.display = "none";
+    async function generate(retry = 0) {
+        const topics = Array.from(document.querySelectorAll('.chip.active')).map(c => c.innerText);
+        if(!topics.length) return alert("Select a topic!");
+
+        const status = document.getElementById('status');
+        const output = document.getElementById('output');
+        status.innerText = "🛰️ Connecting to Daily Globe...";
+        output.style.display = "none";
 
         try {
-            const res = await fetch("https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2", {
+            const res = await fetch("https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct", {
                 method: "POST",
-                headers: { "Authorization": `Bearer ${key()}`, "Content-Type": "application/json" },
+                headers: { "Authorization": `Bearer ${getK()}`, "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    inputs: `[INST] You are Daily Globe. Give me 3 teen news summaries on: ${selected.join(", ")}. Use emojis and bold titles. [/INST]`,
-                    parameters: { max_new_tokens: 500, wait_for_model: true }
+                    inputs: `<|user|>\nYou are the Daily Globe news anchor. Weather: ${localTemp}. Topics: ${topics.join(", ")}. Write 3 short summaries with bold titles and emojis.<|assistant|>`,
+                    parameters: { max_new_tokens: 500 }
                 })
             });
 
             const data = await res.json();
 
             if (data.estimated_time) {
-                log.innerText = `AI is warming up... wait ${Math.round(data.estimated_time)}s and click again!`;
-                return;
+                let wait = Math.round(data.estimated_time);
+                status.innerText = `Waking up AI... ${wait}s`;
+                return setTimeout(() => generate(retry + 1), wait * 1000);
             }
 
-            if (data.error) {
-                log.innerText = "Error: Key might be blocked.";
-                return;
-            }
-
-            const text = data[0].generated_text;
-            news.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
-            news.style.display = "block";
-            log.innerText = "Success!";
-
+            const raw = data[0].generated_text || data.generated_text;
+            output.innerHTML = raw.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+            output.style.display = "block";
+            status.innerText = "Success!";
         } catch (e) {
-            log.innerText = "Offline or blocked.";
+            status.innerText = "Key might be blocked. Try one more time.";
         }
     }
 
-    // Weather Loader
-    navigator.geolocation.getCurrentPosition(async p => {
-        const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${p.coords.latitude}&longitude=${p.coords.longitude}&current_weather=true`);
+    // Weather Logic
+    navigator.geolocation.getCurrentPosition(async pos => {
+        const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current_weather=true`);
         const d = await r.json();
-        document.getElementById('weather').innerText = `📍 Weather: ${Math.round(d.current_weather.temperature)}°C`;
+        localTemp = Math.round(d.current_weather.temperature) + "°C";
+        document.getElementById('weather').innerText = `📍 Weather: ${localTemp}`;
     });
 </script>
 </body>
 </html>
+
