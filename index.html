@@ -3,119 +3,332 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="mobile-web-app-capable" content="yes">
     <title>Daily Globe</title>
     <style>
-        :root { --bg: #f4f4f9; --card: #ffffff; --tint: #007aff; --text: #1c1c1e; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
-        .container { max-width: 450px; margin: 0 auto; }
-        h1 { font-size: 34px; font-weight: 900; color: var(--tint); text-align: center; margin-bottom: 25px; }
-        .card { background: var(--card); border-radius: 20px; padding: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.06); margin-bottom: 20px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
-        .chip { background: #eee; padding: 15px; border-radius: 12px; text-align: center; font-weight: 700; cursor: pointer; transition: 0.2s; border: 2px solid transparent; }
-        .chip.active { border-color: var(--tint); background: #e7f2ff; color: var(--tint); }
-        input { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #ddd; margin: 15px 0; box-sizing: border-box; font-size: 16px; }
-        button.action { background: var(--tint); color: white; border: none; width: 100%; padding: 18px; border-radius: 15px; font-size: 18px; font-weight: 800; cursor: pointer; }
-        #status { text-align: center; margin-top: 15px; font-weight: 700; color: #555; }
-        #output { display: none; line-height: 1.6; font-size: 16px; border-top: 1px solid #eee; padding-top: 20px; }
-        .error-log { color: #ff3b30; font-size: 11px; font-family: monospace; text-align: center; margin-top: 10px; }
+        :root {
+            --bg: #fafafa;
+            --card: #ffffff;
+            --text: #262626;
+            --accent: #0095f6;
+            --border: #dbdbdb;
+            --gray: #8e8e8e;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Top Bar */
+        .header {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0;
+            font-style: italic;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px 10px;
+        }
+
+        /* Topic Selector (Stories Bar) */
+        .stories-bar {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding-bottom: 20px;
+            scrollbar-width: none;
+        }
+
+        .story {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 70px;
+            cursor: pointer;
+        }
+
+        .story-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid #e1306c; /* Instagram Gradient look */
+            padding: 2px;
+            margin-bottom: 5px;
+            transition: 0.2s;
+        }
+
+        .story.active .story-circle {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .story-circle img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #eee;
+            object-fit: cover;
+        }
+
+        .story span {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Login/Setup Card */
+        .auth-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 15px 0;
+            border: 1px solid var(--border);
+            background: #fafafa;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 10px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* News Post (Instagram Feed Style) */
+        .post {
+            background: var(--card);
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            border-radius: 3px;
+        }
+
+        .post-header {
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .post-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .post-username {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .post-content {
+            padding: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .post-actions {
+            padding: 10px 15px;
+            display: flex;
+            gap: 15px;
+            font-size: 20px;
+        }
+
+        .post-likes {
+            padding: 0 15px 10px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        /* Status & Error */
+        #status {
+            text-align: center;
+            font-size: 13px;
+            color: var(--gray);
+            margin: 10px 0;
+        }
+        
+        .error-msg {
+            color: #ed4956;
+            font-size: 12px;
+            text-align: center;
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Daily Globe</h1>
-
-    <div id="login" class="card">
-        <p style="text-align:center; font-weight:700;">Connect Access Key</p>
-        <input type="password" id="tokenInput" placeholder="Paste hf_... here">
-        <button class="action" onclick="save()">Enter</button>
+    <div class="header">
+        <h1>Daily Globe</h1>
     </div>
 
-    <div id="app" style="display:none;">
-        <div class="card">
-            <div class="grid">
-                <div class="chip" onclick="this.classList.toggle('active')">Sports</div>
-                <div class="chip" onclick="this.classList.toggle('active')">Gaming</div>
-                <div class="chip" onclick="this.classList.toggle('active')">Tech</div>
-                <div class="chip" onclick="this.classList.toggle('active')">Music</div>
-            </div>
-            <button class="action" onclick="generate()">Generate News</button>
-            <div id="status">Ready</div>
-            <div id="debug" class="error-log"></div>
-            <p onclick="localStorage.clear(); location.reload();" style="text-align:center; font-size:10px; color:gray; cursor:pointer; margin-top:15px;">Clear Token</p>
+    <div class="container">
+        <div id="setup" class="auth-card">
+            <p style="font-size: 14px; color: var(--gray);">Connect your Hugging Face API Token to start browsing.</p>
+            <input type="password" id="tokenIn" placeholder="hf_...">
+            <button class="btn-primary" onclick="saveToken()">Login</button>
         </div>
-        <div id="output" class="card"></div>
+
+        <div id="mainApp" style="display:none;">
+            <div class="stories-bar">
+                <div class="story" onclick="toggleTopic(this, 'Science')">
+                    <div class="story-circle"><img src="https://img.icons8.com/color/96/test-tube.png"></div>
+                    <span>Science</span>
+                </div>
+                <div class="story" onclick="toggleTopic(this, 'Tech')">
+                    <div class="story-circle"><img src="https://img.icons8.com/color/96/laptop.png"></div>
+                    <span>Tech</span>
+                </div>
+                <div class="story" onclick="toggleTopic(this, 'Sport')">
+                    <div class="story-circle"><img src="https://img.icons8.com/color/96/football.png"></div>
+                    <span>Sport</span>
+                </div>
+                <div class="story" onclick="toggleTopic(this, 'Gaming')">
+                    <div class="story-circle"><img src="https://img.icons8.com/color/96/controller.png"></div>
+                    <span>Gaming</span>
+                </div>
+            </div>
+
+            <button class="btn-primary" id="genBtn" onclick="getNews()">Generate Feed</button>
+            <div id="status">Ready to sync</div>
+            <div id="debug" class="error-msg"></div>
+
+            <div id="feed"></div>
+            
+            <p onclick="logout()" style="text-align:center; font-size:11px; color:var(--gray); cursor:pointer; margin-top:20px;">Switch Account</p>
+        </div>
     </div>
-</div>
 
 <script>
-    function save() {
-        const val = document.getElementById('tokenInput').value.trim();
-        if(val.startsWith('hf_')) {
-            localStorage.setItem('user_token', val);
-            check();
-        } else { alert("Token must start with hf_"); }
-    }
+    let selectedTopics = [];
 
-    function check() {
-        if(localStorage.getItem('user_token')) {
-            document.getElementById('login').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
+    function toggleTopic(el, topic) {
+        el.classList.toggle('active');
+        if(selectedTopics.includes(topic)) {
+            selectedTopics = selectedTopics.filter(t => t !== topic);
+        } else {
+            selectedTopics.push(topic);
         }
     }
 
-    async function generate() {
-        const chips = Array.from(document.querySelectorAll('.chip.active')).map(c => c.innerText);
-        if(!chips.length) return alert("Select a topic!");
+    function saveToken() {
+        const val = document.getElementById('tokenIn').value.trim();
+        if(val.startsWith('hf_')) {
+            localStorage.setItem('dg_key', val);
+            init();
+        } else { alert("Invalid token format."); }
+    }
 
-        const status = document.getElementById('status');
-        const output = document.getElementById('output');
-        const debug = document.getElementById('debug');
+    function logout() {
+        localStorage.clear();
+        location.reload();
+    }
 
-        status.innerText = "🛰️ Sending through Proxy...";
-        debug.innerText = "";
-        output.style.display = "none";
+    function init() {
+        if(localStorage.getItem('dg_key')) {
+            document.getElementById('setup').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+        }
+    }
 
-        const token = localStorage.getItem('user_token');
+    async function getNews() {
+        if(selectedTopics.length === 0) return alert("Select topics in the stories bar!");
         
-        // This is the Magic: We wrap the URL in corsproxy.io
+        const status = document.getElementById('status');
+        const feed = document.getElementById('feed');
+        const debug = document.getElementById('debug');
+        
+        status.innerText = "Refreshing feed...";
+        debug.innerText = "";
+        const token = localStorage.getItem('dg_key');
+
         const rawUrl = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2";
-        const proxiedUrl = `https://corsproxy.io/?${encodeURIComponent(rawUrl)}`;
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(rawUrl)}`;
 
         try {
-            const res = await fetch(proxiedUrl, {
+            const res = await fetch(proxyUrl, {
                 method: "POST",
                 headers: { 
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    inputs: `[INST] Write 3 short viral news headlines for teens about ${chips.join(", ")}. Use emojis. [/INST]`,
-                    parameters: { max_new_tokens: 250, wait_for_model: true }
+                    inputs: `[INST] Write 3 short viral news summaries for teens about ${selectedTopics.join(", ")}. Use emojis. [/INST]`,
+                    parameters: { max_new_tokens: 400, wait_for_model: true }
                 })
             });
 
             const data = await res.json();
 
-            if (res.ok) {
-                const text = data[0].generated_text.split('[/INST]')[1] || data[0].generated_text;
-                output.innerHTML = text.replace(/\n/g, '<br>');
-                output.style.display = "block";
-                status.innerText = "✨ News Delivered!";
-            } else {
-                status.innerText = "❌ AI Rejected Key";
-                debug.innerText = data.error || "Unknown Error";
+            if (!res.ok) {
+                status.innerText = "Error";
+                debug.innerText = data.error || "Token error. Try a new one.";
+                return;
             }
 
+            const rawText = data[0].generated_text.split('[/INST]')[1] || data[0].generated_text;
+            const items = rawText.split('\n').filter(line => line.length > 5);
+
+            feed.innerHTML = ""; // Clear old feed
+            items.forEach((item, index) => {
+                const post = `
+                    <div class="post">
+                        <div class="post-header">
+                            <div class="post-avatar">DG</div>
+                            <div class="post-username">dailyglobe_official</div>
+                        </div>
+                        <div class="post-content">${item}</div>
+                        <div class="post-actions">❤️ 💬 🚀</div>
+                        <div class="post-likes">${Math.floor(Math.random()*5000) + 100} likes</div>
+                    </div>
+                `;
+                feed.innerHTML += post;
+            });
+
+            status.innerText = "Feed updated";
+
         } catch (err) {
-            status.innerText = "❌ Proxy Blocked";
-            debug.innerText = "Possible AdBlocker interference. Check Console (F12).";
+            status.innerText = "Connection Failed";
+            debug.innerText = "Browser blocked the API. Disable AdBlock or use Incognito Mode.";
         }
     }
 
-    check();
+    init();
 </script>
 </body>
 </html>
-
