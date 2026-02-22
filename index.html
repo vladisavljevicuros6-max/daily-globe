@@ -3,218 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Globe V7 | Your Reality</title>
+    <title>Daily Globe V8 | Multi-Interest</title>
     <style>
-        :root { --bg: #f8f9fa; --card: #ffffff; --primary: #007bff; --text: #212529; --gray: #6c757d; --shadow: 0 4px 20px rgba(0,0,0,0.08); }
-        body { font-family: 'Inter', -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 50px; }
+        :root { --bg: #f0f2f5; --card: #ffffff; --primary: #1a73e8; --text: #1c1e21; --gray: #606770; }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+        /* HEADER & LOGO */
+        .header { background: #fff; padding: 15px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center; }
+        .logo-container { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .planet-icon { font-size: 32px; animation: rotate 20s linear infinite; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .logo-text { font-weight: 900; letter-spacing: 3px; font-size: 18px; margin: 0; color: #000; }
+
+        .menu-trigger { position: absolute; left: 15px; top: 25px; font-size: 24px; cursor: pointer; border: none; background: none; }
 
         /* AUTH SCREEN */
-        #auth-screen { position: fixed; inset: 0; background: #fff; z-index: 2000; display: flex; align-items: center; justify-content: center; transition: 0.5s; }
-        .auth-card { background: #fff; padding: 40px; border-radius: 24px; box-shadow: var(--shadow); width: 100%; max-width: 360px; text-align: center; }
-        .auth-card h2 { font-weight: 800; margin-bottom: 30px; }
-        input { width: 100%; padding: 14px; margin: 8px 0; border: 1.5px solid #eee; border-radius: 12px; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--primary); }
-        .btn-auth { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 15px; }
+        #auth-screen { position: fixed; inset: 0; background: #fff; z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        .auth-card { width: 90%; max-width: 350px; text-align: center; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .auth-card input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn-main { background: var(--primary); color: #fff; border: none; padding: 14px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
 
-        /* HEADER & TOP NAV */
-        .header { background: #fff; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #eee; }
-        .logo { font-weight: 900; letter-spacing: -1px; font-size: 22px; color: #000; }
-        
-        /* INTEREST SCROLLER */
-        .interest-nav { background: #fff; padding: 10px 15px; display: flex; gap: 10px; overflow-x: auto; white-space: nowrap; border-bottom: 1px solid #eee; -ms-overflow-style: none; scrollbar-width: none; }
-        .interest-nav::-webkit-scrollbar { display: none; }
-        .chip { padding: 8px 18px; border-radius: 20px; background: #f1f3f5; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.3s; color: var(--gray); }
-        .chip.active { background: var(--primary); color: white; }
+        /* MULTI-INTEREST SELECTOR */
+        .category-bar { background: #fff; padding: 15px; display: flex; gap: 8px; overflow-x: auto; border-bottom: 1px solid #eee; scrollbar-width: none; }
+        .category-bar::-webkit-scrollbar { display: none; }
+        .chip { padding: 8px 16px; border-radius: 20px; background: #e4e6eb; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+        .chip.selected { background: var(--primary); color: #fff; }
 
-        /* FEED & CARDS */
-        .container { max-width: 550px; margin: 0 auto; padding: 20px; }
-        .post { background: var(--card); border-radius: 20px; overflow: hidden; margin-bottom: 30px; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.03); }
-        .post img { width: 100%; height: 280px; object-fit: cover; background: #f1f3f5; }
-        .post-body { padding: 20px; }
-        .post-meta { font-size: 11px; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 8px; }
-        .post-title { font-size: 20px; font-weight: 700; line-height: 1.3; margin: 0 0 10px 0; }
-        .post-text { font-size: 15px; color: #4b5563; line-height: 1.6; margin-bottom: 15px; }
-        
-        .post-actions { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f3f5; padding-top: 15px; }
-        .btn-like { background: none; border: none; cursor: pointer; font-size: 18px; display: flex; align-items: center; gap: 5px; color: var(--gray); font-weight: 600; }
-        .btn-like.active { color: #e63946; }
+        /* SIDE MENU (HAMBURGER) */
+        .sidebar { position: fixed; left: -300px; top: 0; width: 260px; height: 100%; background: #fff; z-index: 1500; transition: 0.3s; padding: 40px 20px; box-shadow: 5px 0 15px rgba(0,0,0,0.1); }
+        .sidebar.open { left: 0; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 1400; backdrop-filter: blur(2px); }
 
-        /* SIDEBAR */
-        .sidebar { position: fixed; right: -300px; top: 0; width: 260px; height: 100%; background: #fff; z-index: 1500; transition: 0.3s; padding: 30px; box-shadow: -5px 0 20px rgba(0,0,0,0.05); }
-        .sidebar.open { right: 0; }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); display: none; z-index: 1400; backdrop-filter: blur(4px); }
+        /* FEED */
+        .container { max-width: 500px; margin: 0 auto; padding: 15px; }
+        .post { background: var(--card); border-radius: 12px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .post img { width: 100%; height: 260px; object-fit: cover; }
+        .post-content { padding: 15px; }
+        .post-tag { color: var(--primary); font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .post-title { font-size: 19px; font-weight: 700; margin: 8px 0; line-height: 1.3; }
+        .post-text { font-size: 14px; color: #444; line-height: 1.5; }
 
-        .load-more { width: 100%; padding: 15px; background: #fff; border: 2px solid #eee; border-radius: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: 0.2s; }
-        .load-more:hover { border-color: var(--primary); color: var(--primary); }
-
-        #no-info { display: none; text-align: center; padding: 60px 20px; }
+        #no-news { display: none; text-align: center; padding: 40px; }
+        .loader { text-align: center; padding: 20px; display: none; font-weight: bold; color: var(--primary); }
+        .load-more { width: 100%; padding: 12px; background: none; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; margin: 10px 0; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
         <div class="auth-card">
+            <span class="planet-icon">🌍</span>
             <h2>Daily Globe</h2>
-            <p style="color:var(--gray); font-size: 14px; margin-bottom: 20px;">Personalized news, verified for 2026.</p>
             <input type="text" id="username" placeholder="Username">
             <input type="password" id="password" placeholder="Password">
-            <button class="btn-auth" onclick="login()">Enter Feed</button>
+            <button class="btn-main" onclick="login()">Sign In</button>
         </div>
     </div>
 
-    <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
     <div id="sidebar" class="sidebar">
-        <h3 id="user-name-tag">Profile</h3>
-        <p style="font-size: 12px; color: gray;">Your preferences are synced.</p>
-        <hr style="opacity: 0.1; margin: 20px 0;">
-        <button class="btn-auth" style="background:#f1f3f5; color:#000;" onclick="logout()">Log Out</button>
+        <h3 id="user-tag">@Guest</h3>
+        <hr style="opacity:0.2">
+        <p onclick="location.reload()">🔄 Refresh Feed</p>
+        <p onclick="localStorage.removeItem('dg_key'); location.reload()">🔑 Change API Key</p>
+        <p onclick="logout()" style="color:red; margin-top:50px;">Log Out</p>
     </div>
+    <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
 
     <div class="header">
-        <div class="logo">DG</div>
-        <div style="flex-grow: 1; text-align: center; font-size: 12px; font-weight: 800; opacity: 0.4;">SUNDAY, FEB 22, 2026</div>
-        <button onclick="toggleMenu()" style="background:none; border:none; font-size: 20px; cursor:pointer;">👤</button>
+        <button class="menu-trigger" onclick="toggleMenu()">☰</button>
+        <div class="logo-container">
+            <span class="planet-icon">🌍</span>
+            <h1 class="logo-text">DAILY GLOBE</h1>
+        </div>
     </div>
 
-    <div class="interest-nav" id="interest-nav">
-        <div class="chip active" onclick="setInterest('For You', this)">For You</div>
-        <div class="chip" onclick="setInterest('Tech', this)">Technology</div>
-        <div class="chip" onclick="setInterest('Science', this)">Science</div>
-        <div class="chip" onclick="setInterest('Cars', this)">Automotive</div>
-        <div class="chip" onclick="setInterest('Space', this)">Space</div>
-        <div class="chip" onclick="setInterest('Lifestyle', this)">Lifestyle</div>
+    <div class="category-bar">
+        <div class="chip selected" onclick="toggleInterest('Tech', this)">Technology</div>
+        <div class="chip" onclick="toggleInterest('Sports', this)">Sports</div>
+        <div class="chip" onclick="toggleInterest('Cooking', this)">Cooking</div>
+        <div class="chip" onclick="toggleInterest('Cars', this)">Automotive</div>
+        <div class="chip" onclick="toggleInterest('Science', this)">Science</div>
+        <div class="chip" onclick="toggleInterest('Space', this)">Space</div>
     </div>
 
     <div class="container">
-        <input type="text" id="search" placeholder="Search real 2026 news..." style="margin-bottom: 20px; background:#fff;" onkeypress="if(event.key=='Enter') fetchNews(this.value)">
-        
         <div id="feed"></div>
-
-        <div id="no-info">
-            <span style="font-size: 50px;">🔍</span>
-            <h3>No Verified Record</h3>
-            <p style="color:gray;">AI verified: No real news exists for this topic in 2026. Try 'Artemis delay' or 'Fusion energy'.</p>
+        
+        <div id="no-news">
+            <h2>🛸 No Data Found</h2>
+            <p>Verification failed. This event does not exist in the 2026 record. Try searching for "Samsung S26" or "Milan Olympics".</p>
         </div>
 
-        <button id="load-more" class="load-more" onclick="loadMore()" style="display:none;">See More Stories</button>
-        <p id="loader" style="text-align:center; font-size:12px; display:none;">Syncing with global feeds...</p>
+        <div id="loader" class="loader">Verifying 2026 Sources...</div>
+        <button id="load-more" class="load-more" onclick="fetchNews(true)" style="display:none;">Show More</button>
     </div>
 
 <script>
     let user = localStorage.getItem('dg_user');
-    let db = JSON.parse(localStorage.getItem('dg_db') || '{}');
-    let currentTopic = 'For You';
+    let selectedInterests = ['Tech'];
 
     function login() {
         const u = document.getElementById('username').value;
-        if(!u) return;
-        localStorage.setItem('dg_user', u);
-        if(!db[u]) db[u] = { weights: { Tech: 1, Science: 1, Cars: 1, Space: 1, Lifestyle: 1 } };
-        localStorage.setItem('dg_db', JSON.stringify(db));
-        location.reload();
+        if(u) { localStorage.setItem('dg_user', u); location.reload(); }
     }
-
     function logout() { localStorage.removeItem('dg_user'); location.reload(); }
-    function toggleMenu() { 
+    function toggleMenu() {
         document.getElementById('sidebar').classList.toggle('open');
         document.getElementById('overlay').style.display = document.getElementById('sidebar').classList.contains('open') ? 'block' : 'none';
     }
 
-    function setInterest(topic, el) {
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
-        fetchNews(topic);
+    function toggleInterest(interest, el) {
+        if(selectedInterests.includes(interest)) {
+            if(selectedInterests.length > 1) {
+                selectedInterests = selectedInterests.filter(i => i !== interest);
+                el.classList.remove('selected');
+            }
+        } else {
+            selectedInterests.push(interest);
+            el.classList.add('selected');
+        }
+        fetchNews();
     }
 
-    async function fetchNews(topic = "General", append = false) {
-        currentTopic = topic;
+    async function fetchNews(append = false) {
         const feed = document.getElementById('feed');
         const loader = document.getElementById('loader');
         const moreBtn = document.getElementById('load-more');
-        const noInfo = document.getElementById('no-info');
+        const noNews = document.getElementById('no-news');
 
         if(!append) feed.innerHTML = "";
         loader.style.display = 'block';
         moreBtn.style.display = 'none';
-        noInfo.style.display = 'none';
+        noNews.style.display = 'none';
 
-        const gKey = localStorage.getItem('dg_key') || prompt("Enter Groq Key:");
-        localStorage.setItem('dg_key', gKey);
+        const apiKey = localStorage.getItem('dg_key') || prompt("Verification Key Required (Groq):");
+        if(!apiKey) { loader.innerText = "API Key Required."; return; }
+        localStorage.setItem('dg_key', apiKey);
 
-        // Algorithm logic for "For You"
-        let focus = topic;
-        if(topic === 'For You') {
-            const weights = db[user].weights;
-            focus = Object.keys(weights).reduce((a, b) => weights[a] > weights[b] ? a : b);
-        }
-
-        const prompt = `DATE: Feb 22, 2026.
-        TOPIC: ${focus}.
-        REAL CONTEXT: 
-        - Space: NASA Artemis II SLS delay (helium leak). China Chang'e 7 prep.
-        - Tech: CES 2026 Physical AI focus. Commonwealth Fusion 2027 milestone. Claude Code Security news.
-        - Cars: Luxury auto club expansion.
-        - Lifestyle: Gift+Home market in Canada. Ramadan prep in Gaza.
+        const promptTxt = `DATE: Feb 22, 2026. 
+        USER INTERESTS: ${selectedInterests.join(', ')}.
+        STRICT 2026 REALITY CHECK:
+        - Sports: Milano Cortina Closing Ceremony today (Verona Arena), USA vs Canada Hockey Final.
+        - Tech: Samsung Unpacked Feb 25 (S26 leaks/AI).
+        - Science: Japanese Plum Blossom (Ume) season trends.
+        - Space: Artemis delay news.
         
-        TASK: Return 3 REAL articles. If topic is fake, return {"error": "no_info"}.
-        JSON: {"news": [{"category": "", "title": "", "summary": "", "imgKeywords": "3 words for real photo"}]}`;
+        If news is fake, return {"error": "no_info"}.
+        Else return JSON: {"articles": [{"tag": "", "title": "", "summary": "", "imgKeywords": "3 precise keywords"}]}`;
 
         try {
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
-                headers: { "Authorization": `Bearer ${gKey}`, "Content-Type": "application/json" },
+                headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
-                    messages: [{role: "user", content: prompt}],
+                    messages: [{role: "user", content: promptTxt}],
                     response_format: { type: "json_object" }
                 })
             });
+
             const data = await res.json();
             const result = JSON.parse(data.choices[0].message.content);
             loader.style.display = 'none';
 
-            if(result.error) { noInfo.style.display = 'block'; return; }
+            if(result.error) { noNews.style.display = 'block'; return; }
 
-            result.news.forEach(item => {
+            result.articles.forEach(item => {
                 const img = `https://loremflickr.com/600/400/${encodeURIComponent(item.imgKeywords.split(' ')[0])},${encodeURIComponent(item.imgKeywords.split(' ')[1])}/all?lock=${Math.random()}`;
                 feed.innerHTML += `
                     <div class="post">
-                        <img src="${img}">
-                        <div class="post-body">
-                            <div class="post-meta">${item.category}</div>
+                        <img src="${img}" onerror="this.src='https://via.placeholder.com/600x400?text=News+Verified'">
+                        <div class="post-content">
+                            <span class="post-tag">${item.tag}</span>
                             <h2 class="post-title">${item.title}</h2>
                             <p class="post-text">${item.summary}</p>
-                            <div class="post-actions">
-                                <button class="btn-like" onclick="like('${item.category}', this)"><span>👍</span> Helpful</button>
-                                <span style="font-size:11px; color:gray;">Verified Feb 22, 2026</span>
-                            </div>
+                            <p style="font-size:10px; color:gray; text-align:right;">Verified: Feb 22, 2026</p>
                         </div>
                     </div>
                 `;
             });
             moreBtn.style.display = 'block';
-        } catch(e) { loader.innerText = "Connection error."; }
-    }
-
-    function like(cat, btn) {
-        btn.classList.toggle('active');
-        if(btn.classList.contains('active')) {
-            db[user].weights[cat] = (db[user].weights[cat] || 1) + 2;
-            btn.innerHTML = "<span>❤️</span> Liked";
-        } else {
-            db[user].weights[cat] -= 2;
-            btn.innerHTML = "<span>👍</span> Helpful";
+        } catch (e) {
+            loader.innerText = "Connection Error. Check API Key.";
         }
-        localStorage.setItem('dg_db', JSON.stringify(db));
     }
-
-    function loadMore() { fetchNews(currentTopic, true); }
 
     if(user) {
-        document.getElementById('auth-screen').style.opacity = '0';
-        setTimeout(() => document.getElementById('auth-screen').style.display = 'none', 500);
-        document.getElementById('user-name-tag').innerText = "@" + user;
-        fetchNews('For You');
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('user-tag').innerText = "@" + user;
+        fetchNews();
     }
 </script>
 </body>
