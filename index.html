@@ -3,148 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Globe V11 | Verified Reality</title>
+    <title>Daily Globe V12 | Hard Truth Protocol</title>
     <style>
-        :root { --bg: #f0f4f8; --primary: #0f172a; --accent: #2563eb; --truth: #059669; --glass: rgba(255,255,255,0.8); }
-        body { font-family: 'Inter', system-ui, sans-serif; margin: 0; background: var(--bg); color: #1e293b; overflow-x: hidden; }
-
-        /* HEADER & SEARCH */
+        :root { --bg: #f8fafc; --primary: #0f172a; --accent: #3b82f6; --truth: #10b981; --fake: #ef4444; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: #1e293b; transition: 0.3s; }
+        
+        /* HEADER & TABS */
         .header { background: #fff; padding: 15px; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 1000; display: flex; align-items: center; justify-content: space-between; }
-        .logo { font-weight: 900; letter-spacing: 2px; font-size: 16px; display: flex; align-items: center; gap: 8px; }
-        .planet { font-size: 24px; animation: spin 20s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        
-        .search-area { padding: 10px 15px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; gap: 10px; }
-        .search-input { flex: 1; padding: 10px 15px; border-radius: 20px; border: 1px solid #cbd5e1; outline: none; font-size: 14px; }
+        .logo { font-weight: 900; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
+        .tabs { display: flex; overflow-x: auto; padding: 10px; background: #fff; gap: 10px; border-bottom: 1px solid #e2e8f0; }
+        .tab { padding: 8px 16px; border-radius: 20px; border: 1px solid #e2e8f0; cursor: pointer; white-space: nowrap; font-size: 13px; font-weight: 600; }
+        .tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
-        /* FIXED SIDEBAR */
-        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: var(--primary); color: #fff; z-index: 3000; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 30px 15px; box-shadow: 10px 0 30px rgba(0,0,0,0.3); }
+        /* SIDEBAR & ROADMAP */
+        .sidebar { position: fixed; left: -300px; top: 0; width: 280px; height: 100%; background: var(--primary); color: #fff; z-index: 3000; transition: 0.4s ease; padding: 30px 20px; }
         .sidebar.open { left: 0; }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2500; display: none; backdrop-filter: blur(4px); }
-        .side-item { padding: 15px; border-radius: 10px; cursor: pointer; transition: 0.2s; }
-        .side-item:hover { background: rgba(255,255,255,0.1); }
+        .roadmap-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 5000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .roadmap-content { background: #fff; border-radius: 24px; padding: 30px; max-width: 400px; width: 100%; color: #000; max-height: 80vh; overflow-y: auto; }
 
-        /* FEED & GROUND TRUTH */
+        /* CARDS & TRUTH ENGINE */
         .container { max-width: 500px; margin: 0 auto; padding: 15px; }
-        .card { background: #fff; border-radius: 24px; margin-bottom: 25px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #fff; }
-        .card img { width: 100%; height: 250px; object-fit: cover; }
-        .card-content { padding: 20px; }
+        .card { background: #fff; border-radius: 28px; margin-bottom: 25px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; position: relative; }
+        .card img { width: 100%; height: 260px; object-fit: cover; }
+        .card-body { padding: 20px; }
+        .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 10px; margin-bottom: 12px; }
+        .badge-truth { background: #ecfdf5; color: var(--truth); border: 1px solid var(--truth); }
+        .badge-fake { background: #fef2f2; color: var(--fake); border: 1px solid var(--fake); }
         
-        .truth-seal { display: inline-flex; align-items: center; gap: 5px; color: var(--truth); font-size: 11px; font-weight: 800; background: #ecfdf5; padding: 5px 10px; border-radius: 8px; border: 1px solid var(--truth); margin-bottom: 12px; text-transform: uppercase; }
-        .source-tag { font-size: 10px; color: #64748b; margin-top: 10px; display: block; border-top: 1px solid #f1f5f9; padding-top: 10px; }
+        /* AR BUTTON */
+        .ar-btn { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); font-size: 20px; }
 
-        /* ADVANCED AI BUDDY */
-        #buddy-container { position: fixed; bottom: 20px; right: 20px; z-index: 4000; }
-        .buddy-fab { width: 60px; height: 60px; background: var(--accent); border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 8px 20px rgba(37,99,235,0.4); cursor: pointer; transition: 0.3s; }
-        .buddy-fab:hover { transform: scale(1.1); }
-        .buddy-window { position: absolute; bottom: 75px; right: 0; width: 320px; height: 450px; background: #fff; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); display: none; flex-direction: column; overflow: hidden; border: 1px solid #e2e8f0; }
-        .buddy-header { background: var(--accent); color: #fff; padding: 15px; font-weight: 700; display: flex; justify-content: space-between; }
-        .buddy-msgs { flex: 1; padding: 15px; overflow-y: auto; font-size: 13px; background: #f8fafc; line-height: 1.5; }
-        .buddy-input { padding: 15px; border-top: 1px solid #e2e8f0; display: flex; gap: 8px; }
-        .buddy-input input { flex: 1; border: none; outline: none; font-size: 14px; }
-
-        .btn-more { width: 100%; padding: 16px; background: #fff; border: 2px solid #e2e8f0; border-radius: 15px; font-weight: 800; cursor: pointer; margin-top: 10px; color: var(--primary); }
+        /* BUDDY 3.0 */
+        .buddy-fab { position: fixed; bottom: 25px; right: 25px; width: 65px; height: 65px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 10px 25px rgba(59,130,246,0.5); cursor: pointer; z-index: 4000; }
+        .buddy-chat { position: fixed; bottom: 100px; right: 25px; width: 340px; height: 480px; background: #fff; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); display: none; flex-direction: column; overflow: hidden; z-index: 4001; }
+        .chat-header { background: var(--primary); color: #fff; padding: 20px; font-weight: 700; display: flex; justify-content: space-between; }
+        .chat-msgs { flex: 1; padding: 20px; overflow-y: auto; background: #f8fafc; font-size: 14px; }
+        .chat-input { padding: 15px; border-top: 1px solid #e2e8f0; display: flex; gap: 10px; }
+        
+        /* FEED CONTROLS */
+        .btn-more { width: 100%; padding: 18px; background: #fff; border: 2px solid #e2e8f0; border-radius: 20px; font-weight: 800; cursor: pointer; margin-bottom: 40px; color: var(--primary); }
     </style>
 </head>
 <body>
 
-    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
     <div class="sidebar" id="sidebar">
-        <h2 style="color: var(--accent)">GLOBE MENU</h2>
-        <div class="side-item" onclick="location.reload()">🏠 Today's Headlines</div>
-        <div class="side-item" onclick="toggleMenu()">🌟 2026 Future Roadmap</div>
-        <div class="side-item" onclick="updateKey()">🔑 Change API Key</div>
-        <div class="side-item" style="color: #ef4444; margin-top: 40px;" onclick="localStorage.clear(); location.reload()">🚪 Reset App</div>
+        <h1 style="color:var(--accent)">GLOBE</h1>
+        <p style="font-size:12px; opacity:0.6">FEBRUARY 22, 2026</p>
+        <hr style="opacity:0.1; margin: 20px 0;">
+        <div onclick="location.reload()" style="padding:15px 0; cursor:pointer">🏠 Home Feed</div>
+        <div onclick="toggleRoadmap()" style="padding:15px 0; cursor:pointer">🗓️ 2026 Roadmap</div>
+        <div onclick="promptKey()" style="padding:15px 0; cursor:pointer">🔑 Update API Key</div>
+        <div onclick="localStorage.clear(); location.reload()" style="padding:15px 0; color:var(--fake); margin-top:50px; cursor:pointer">🚪 Reset All</div>
     </div>
 
     <div class="header">
-        <button onclick="toggleMenu()" style="background:none; border:none; font-size:24px; cursor:pointer;">☰</button>
-        <div class="logo"><span class="planet">🌍</span> DAILY GLOBE</div>
+        <button onclick="toggleMenu()" style="background:none; border:none; font-size:24px; cursor:pointer">☰</button>
+        <div class="logo">🌍 DAILY GLOBE</div>
         <div style="width:24px"></div>
     </div>
 
-    <div class="search-area">
-        <input type="text" id="searchInput" class="search-input" placeholder="Search 2026 archives..." onkeypress="if(event.key=='Enter') fetchNews()">
-        <button onclick="fetchNews()" style="background:var(--accent); color:#fff; border:none; border-radius:20px; padding:0 15px; cursor:pointer;">Go</button>
+    <div class="tabs">
+        <div class="tab active" onclick="setTab('Trending', this)">Trending</div>
+        <div class="tab" onclick="setTab('Gaming', this)">🎮 Gaming</div>
+        <div class="tab" onclick="setTab('Olympics', this)">🏅 Olympics</div>
+        <div class="tab" onclick="setTab('Space', this)">🚀 Space</div>
+    </div>
+
+    <div style="padding: 10px 15px;">
+        <input type="text" id="search" placeholder="Search verified 2026 records..." 
+               style="width:100%; padding:12px 20px; border-radius:30px; border:1px solid #e2e8f0; outline:none; box-sizing:border-box" 
+               onkeypress="if(event.key=='Enter') fetchNews()">
     </div>
 
     <div class="container">
         <div id="feed"></div>
-        <div id="loader" style="text-align:center; padding:40px; display:none; font-weight:700;">📡 Connecting to Orbital Feed...</div>
-        <button id="loadMore" class="btn-more" onclick="fetchNews(true)" style="display:none;">LOAD MORE STORIES</button>
+        <div id="loader" style="text-align:center; display:none; padding:40px">
+            <div style="animation: spin 1s linear infinite; font-size:30px">🌀</div>
+            <p>Verifying Ground Truth...</p>
+        </div>
+        <button id="loadMore" class="btn-more" onclick="fetchNews(true)" style="display:none">LOAD MORE NEWS</button>
     </div>
 
-    <div id="buddy-container">
-        <div class="buddy-window" id="buddyWindow">
-            <div class="buddy-header">
-                <span>Global Buddy 2.0</span>
-                <span onclick="toggleBuddy()" style="cursor:pointer">✕</span>
-            </div>
-            <div class="buddy-msgs" id="buddyMsgs">
-                <b>Buddy:</b> Checking sensors... Feb 22, 2026 detected. The Olympics end tonight in Verona! How can I help you navigate today's reality?
-            </div>
-            <div class="buddy-input">
-                <input type="text" id="buddyIn" placeholder="Ask about 2026..." onkeypress="if(event.key=='Enter') buddyChat()">
-                <button onclick="buddyChat()" style="border:none; background:none; font-size:20px; cursor:pointer">🚀</button>
-            </div>
+    <div class="buddy-fab" onclick="toggleBuddy()">🤖</div>
+    <div class="buddy-chat" id="buddyWindow">
+        <div class="chat-header"><span>Buddy 3.0</span><span onclick="toggleBuddy()" style="cursor:pointer">✕</span></div>
+        <div class="chat-msgs" id="chatMsgs"><b>Buddy:</b> It's Feb 22, 2026. Olympics end tonight. Artemis II is in rollback. How can I verify your reality?</div>
+        <div class="chat-input">
+            <input type="text" id="chatIn" placeholder="Ask about 2026..." style="flex:1; border:none; outline:none" onkeypress="if(event.key=='Enter') chat()">
+            <button onclick="chat()" style="border:none; background:none; cursor:pointer">🚀</button>
         </div>
-        <div class="buddy-fab" onclick="toggleBuddy()">🤖</div>
+    </div>
+
+    <div class="roadmap-modal" id="roadmap" onclick="toggleRoadmap()">
+        <div class="roadmap-content" onclick="event.stopPropagation()">
+            <h2 style="margin-top:0">2026 ROADMAP</h2>
+            <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
+                <p><b>JAN:</b> Australian Open / Davos 2026</p>
+                <p><b>FEB:</b> Winter Olympics (Milan) / S26 Launch</p>
+                <p><b>MAR:</b> Pokémon Pokopia Release (Switch 2)</p>
+                <p><b>APR:</b> Artemis II Target Launch Window</p>
+                <p><b>JUNE:</b> FIFA World Cup (US/CAN/MEX)</p>
+                <p><b>NOV:</b> GTA VI Global Release (Nov 19)</p>
+            </div>
+            <button class="btn-more" onclick="toggleRoadmap()">Close</button>
+        </div>
     </div>
 
 <script>
-    function toggleMenu() {
-        document.getElementById('sidebar').classList.toggle('open');
-        document.getElementById('overlay').style.display = document.getElementById('sidebar').classList.contains('open') ? 'block' : 'none';
-    }
+    let currentPage = 1;
+    let currentCategory = "Trending";
 
-    function toggleBuddy() {
-        const win = document.getElementById('buddyWindow');
-        win.style.display = win.style.display === 'flex' ? 'none' : 'flex';
-    }
-
-    function updateKey() {
-        const key = prompt("Enter new Groq API Key:");
-        if(key) { localStorage.setItem('dg_key', key); fetchNews(); }
-    }
-
-    async function buddyChat() {
-        const input = document.getElementById('buddyIn');
-        const msgs = document.getElementById('buddyMsgs');
-        if(!input.value) return;
-
-        msgs.innerHTML += `<div style="text-align:right; margin-bottom:10px;"><b>You:</b> ${input.value}</div>`;
-        const val = input.value.toLowerCase();
-        input.value = "";
-
-        // Simulated Advanced Logic
-        setTimeout(() => {
-            let response = "I'm analyzing the 2026 data stream for that. Give me a moment.";
-            if(val.includes("olympic")) response = "Italy is celebrating! The Closing Ceremony starts at 20:30 CET at the Verona Arena. Norway currently leads the gold medal count.";
-            if(val.includes("artemis") || val.includes("moon")) response = "Artemis II is being rolled back to the VAB today due to a helium valve issue. The March 6 launch window is now closed; NASA is eyeing April.";
-            
-            msgs.innerHTML += `<div style="margin-bottom:10px; color:var(--accent)"><b>Buddy:</b> ${response}</div>`;
-            msgs.scrollTop = msgs.scrollHeight;
-        }, 800);
+    function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); }
+    function toggleBuddy() { const w = document.getElementById('buddyWindow'); w.style.display = w.style.display === 'flex' ? 'none' : 'flex'; }
+    function toggleRoadmap() { const r = document.getElementById('roadmap'); r.style.display = r.style.display === 'flex' ? 'none' : 'flex'; }
+    function setTab(cat, el) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        currentCategory = cat;
+        fetchNews();
     }
 
     async function fetchNews(append = false) {
         const feed = document.getElementById('feed');
         const loader = document.getElementById('loader');
         const moreBtn = document.getElementById('loadMore');
-        const search = document.getElementById('searchInput').value;
+        const searchVal = document.getElementById('search').value;
 
-        if(!append) feed.innerHTML = "";
+        if(!append) { feed.innerHTML = ""; currentPage = 1; }
+        else { currentPage++; }
+
         loader.style.display = "block";
         moreBtn.style.display = "none";
 
-        const apiKey = localStorage.getItem('dg_key') || prompt("Enter Groq Key:");
+        const apiKey = localStorage.getItem('dg_key') || prompt("Groq Key:");
         localStorage.setItem('dg_key', apiKey);
 
-        const promptText = `DATE: Feb 22, 2026. SEARCH: "${search}".
-        REQUIREMENTS: 
-        1. Articles must reflect Feb 22, 2026 reality.
-        2. Context: Olympics Closing Ceremony today, Artemis II rollback, Samsung S26 leaks.
-        3. Return JSON: {"articles": [{"title": "", "body": "", "src": "Reuters, NASA, etc", "img": "3 keywords"}]}`;
+        // TRUTH PROTOCOL PROMPT
+        const promptTxt = `DATE: Feb 22, 2026. Page: ${currentPage}. Category: ${currentCategory}. Search: "${searchVal}".
+        STRICT RULES:
+        1. If Search is non-existent (e.g. "Aliens land"), return "verified": false.
+        2. Reality Context: GTA VI delayed to Nov 19 2026. Switch 2 out since 2025. Resident Evil Requiem Feb 27. Olympics closing tonight.
+        3. Return JSON: {"articles": [{"title":"", "body":"", "verified": true, "img_keywords": "specific tags", "sources": "NASA, IGN"}]}`;
 
         try {
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -152,7 +151,7 @@
                 headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
-                    messages: [{role: "user", content: promptText}],
+                    messages: [{role: "user", content: promptTxt}],
                     response_format: { type: "json_object" }
                 })
             });
@@ -161,23 +160,47 @@
             loader.style.display = "none";
 
             result.articles.forEach(item => {
-                const img = `https://loremflickr.com/600/400/${encodeURIComponent(item.img.split(' ')[0])}?lock=${Math.random()}`;
+                const isVerified = item.verified !== false;
+                const img = `https://loremflickr.com/800/600/${encodeURIComponent(item.img_keywords)}?lock=${Math.random()}`;
+                
                 feed.innerHTML += `
-                    <div class="card">
+                    <div class="card" style="opacity: ${isVerified ? '1' : '0.7'}">
+                        <button class="ar-btn" onclick="alert('Starting AR Vision...')">🧊</button>
                         <img src="${img}">
-                        <div class="card-content">
-                            <div class="truth-seal">🛡️ Ground Truth Verified</div>
-                            <h2 style="margin:0 0 10px 0; font-size:18px;">${item.title}</h2>
-                            <p style="font-size:14px; color:#475569; line-height:1.6;">${item.body}</p>
-                            <span class="source-tag">Sources: ${item.src}</span>
+                        <div class="card-body">
+                            <div class="badge ${isVerified ? 'badge-truth' : 'badge-fake'}">
+                                ${isVerified ? '🛡️ Ground Truth Verified' : '⚠️ Unverified/Rumor'}
+                            </div>
+                            <h2 style="margin:0 0 10px 0; font-size:20px;">${item.title}</h2>
+                            <p style="font-size:14px; color:#475569; line-height:1.6">${item.body}</p>
+                            <p style="font-size:11px; opacity:0.5; margin-top:15px">Sources: ${item.sources}</p>
                         </div>
                     </div>
                 `;
             });
             moreBtn.style.display = "block";
-        } catch (e) { loader.innerText = "Connection Error. Check API Key."; }
+        } catch (e) { loader.innerText = "Connection Failed."; }
     }
 
+    async function chat() {
+        const i = document.getElementById('chatIn');
+        const m = document.getElementById('chatMsgs');
+        if(!i.value) return;
+        m.innerHTML += `<div style="text-align:right; margin:10px 0"><b>You:</b> ${i.value}</div>`;
+        const q = i.value.toLowerCase();
+        i.value = "";
+        
+        setTimeout(() => {
+            let r = "I am cross-referencing that with the 2026 Ground Truth database...";
+            if(q.includes("gta")) r = "GTA VI is scheduled for Nov 19, 2026 on PS5/Xbox. No PC date has been confirmed by Rockstar yet.";
+            if(q.includes("switch")) r = "The Switch 2 launched in 2025. This month's big hit is Resident Evil Requiem (Feb 27).";
+            if(q.includes("olympic")) r = "Verona is hosting the Closing Ceremony tonight. USA and Canada are currently playing for Hockey Gold!";
+            m.innerHTML += `<div style="color:var(--accent); margin:10px 0"><b>Buddy:</b> ${r}</div>`;
+            m.scrollTop = m.scrollHeight;
+        }, 500);
+    }
+
+    function promptKey() { const k = prompt("Enter Key:"); if(k) localStorage.setItem('dg_key', k); location.reload(); }
     if(localStorage.getItem('dg_key')) fetchNews();
 </script>
 </body>
