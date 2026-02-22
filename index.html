@@ -3,328 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Globe</title>
+    <title>Daily Globe - IG Edition</title>
     <style>
         :root {
-            --bg: #fafafa;
-            --card: #ffffff;
-            --text: #262626;
-            --accent: #0095f6;
-            --border: #dbdbdb;
-            --gray: #8e8e8e;
+            --bg: #fafafa; --card: #ffffff; --text: #262626;
+            --accent: #0095f6; --border: #dbdbdb; --gray: #8e8e8e;
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-        }
-
-        /* Top Bar */
-        .header {
-            background: var(--card);
-            border-bottom: 1px solid var(--border);
-            padding: 10px 20px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .header h1 {
-            font-size: 24px;
-            font-weight: 800;
-            margin: 0;
-            font-style: italic;
-        }
-
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 20px 10px;
-        }
-
-        /* Topic Selector (Stories Bar) */
-        .stories-bar {
-            display: flex;
-            gap: 15px;
-            overflow-x: auto;
-            padding-bottom: 20px;
-            scrollbar-width: none;
-        }
-
-        .story {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 70px;
-            cursor: pointer;
-        }
-
-        .story-circle {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: 2px solid #e1306c; /* Instagram Gradient look */
-            padding: 2px;
-            margin-bottom: 5px;
-            transition: 0.2s;
-        }
-
-        .story.active .story-circle {
-            background: var(--accent);
-            border-color: var(--accent);
-        }
-
-        .story-circle img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: #eee;
-            object-fit: cover;
-        }
-
-        .story span {
-            font-size: 11px;
-            font-weight: 500;
-        }
-
-        /* Login/Setup Card */
-        .auth-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            padding: 30px;
-            text-align: center;
-            border-radius: 8px;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 15px 0;
-            border: 1px solid var(--border);
-            background: #fafafa;
-            border-radius: 3px;
-            box-sizing: border-box;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 10px;
-            font-weight: 600;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        /* News Post (Instagram Feed Style) */
-        .post {
-            background: var(--card);
-            border: 1px solid var(--border);
-            margin-bottom: 20px;
-            border-radius: 3px;
-        }
-
-        .post-header {
-            padding: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .post-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--accent);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .post-username {
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .post-content {
-            padding: 15px;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .post-actions {
-            padding: 10px 15px;
-            display: flex;
-            gap: 15px;
-            font-size: 20px;
-        }
-
-        .post-likes {
-            padding: 0 15px 10px;
-            font-weight: 600;
-            font-size: 13px;
-        }
-
-        /* Status & Error */
-        #status {
-            text-align: center;
-            font-size: 13px;
-            color: var(--gray);
-            margin: 10px 0;
-        }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
+        .header { background: var(--card); border-bottom: 1px solid var(--border); padding: 10px; position: sticky; top: 0; z-index: 100; text-align: center; }
+        .header h1 { font-size: 22px; font-weight: 800; margin: 0; font-style: italic; }
+        .container { max-width: 480px; margin: 0 auto; padding: 15px; }
         
-        .error-msg {
-            color: #ed4956;
-            font-size: 12px;
-            text-align: center;
-            padding: 10px;
-        }
+        /* Stories Selector */
+        .stories { display: flex; gap: 15px; overflow-x: auto; padding: 10px 0 20px; scrollbar-width: none; }
+        .story { display: flex; flex-direction: column; align-items: center; min-width: 75px; cursor: pointer; }
+        .ring { width: 62px; height: 62px; border-radius: 50%; border: 2px solid #d62976; padding: 2px; margin-bottom: 5px; transition: 0.3s; }
+        .story.active .ring { background: var(--accent); border-color: var(--accent); }
+        .ring img { width: 100%; height: 100%; border-radius: 50%; background: #eee; }
+        .story span { font-size: 11px; font-weight: 500; }
+
+        /* Auth Card */
+        .auth { background: var(--card); border: 1px solid var(--border); padding: 25px; text-align: center; border-radius: 8px; }
+        input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid var(--border); border-radius: 5px; box-sizing: border-box; }
+        .btn { background: var(--accent); color: white; border: none; width: 100%; padding: 12px; font-weight: 600; border-radius: 5px; cursor: pointer; }
+
+        /* Feed Posts */
+        .post { background: var(--card); border: 1px solid var(--border); margin-bottom: 15px; border-radius: 5px; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .p-header { padding: 10px; display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; }
+        .avatar { width: 30px; height: 30px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+        .p-content { padding: 15px; font-size: 14px; line-height: 1.6; border-top: 1px solid #fafafa; }
+        .p-actions { padding: 10px 15px; font-size: 18px; display: flex; gap: 15px; border-top: 1px solid #fafafa; }
+        .p-likes { padding: 0 15px 10px; font-weight: 600; font-size: 13px; color: #444; }
+
+        #status { text-align: center; font-size: 12px; color: var(--gray); margin: 10px; }
+        .err { color: #ed4956; font-size: 11px; text-align: center; font-family: monospace; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>Daily Globe</h1>
-    </div>
+    <div class="header"><h1>Daily Globe</h1></div>
 
     <div class="container">
-        <div id="setup" class="auth-card">
-            <p style="font-size: 14px; color: var(--gray);">Connect your Hugging Face API Token to start browsing.</p>
-            <input type="password" id="tokenIn" placeholder="hf_...">
-            <button class="btn-primary" onclick="saveToken()">Login</button>
+        <div id="loginSection" class="auth">
+            <h2 style="margin-top:0">Welcome</h2>
+            <p style="color:var(--gray); font-size:13px">Enter your Hugging Face Token (hf_...)</p>
+            <input type="password" id="hfToken" placeholder="hf_xxxxxxxxxxxx">
+            <button class="btn" onclick="saveKey()">Connect</button>
+            <p style="font-size:10px; margin-top:15px">Token is saved locally in your browser.</p>
         </div>
 
-        <div id="mainApp" style="display:none;">
-            <div class="stories-bar">
-                <div class="story" onclick="toggleTopic(this, 'Science')">
-                    <div class="story-circle"><img src="https://img.icons8.com/color/96/test-tube.png"></div>
+        <div id="appSection" style="display:none;">
+            <div class="stories">
+                <div class="story" onclick="sel(this, 'Science')">
+                    <div class="ring"><img src="https://img.icons8.com/fluency/96/test-tube.png"></div>
                     <span>Science</span>
                 </div>
-                <div class="story" onclick="toggleTopic(this, 'Tech')">
-                    <div class="story-circle"><img src="https://img.icons8.com/color/96/laptop.png"></div>
+                <div class="story" onclick="sel(this, 'Gaming')">
+                    <div class="ring"><img src="https://img.icons8.com/fluency/96/controller.png"></div>
+                    <span>Gaming</span>
+                </div>
+                <div class="story" onclick="sel(this, 'Tech')">
+                    <div class="ring"><img src="https://img.icons8.com/fluency/96/artificial-intelligence.png"></div>
                     <span>Tech</span>
                 </div>
-                <div class="story" onclick="toggleTopic(this, 'Sport')">
-                    <div class="story-circle"><img src="https://img.icons8.com/color/96/football.png"></div>
-                    <span>Sport</span>
-                </div>
-                <div class="story" onclick="toggleTopic(this, 'Gaming')">
-                    <div class="story-circle"><img src="https://img.icons8.com/color/96/controller.png"></div>
-                    <span>Gaming</span>
+                <div class="story" onclick="sel(this, 'Music')">
+                    <div class="ring"><img src="https://img.icons8.com/fluency/96/musical-notes.png"></div>
+                    <span>Music</span>
                 </div>
             </div>
 
-            <button class="btn-primary" id="genBtn" onclick="getNews()">Generate Feed</button>
-            <div id="status">Ready to sync</div>
-            <div id="debug" class="error-msg"></div>
+            <button class="btn" onclick="fetchNews()">Refresh Feed</button>
+            <div id="status">Ready to explore</div>
+            <div id="debug" class="err"></div>
 
             <div id="feed"></div>
-            
-            <p onclick="logout()" style="text-align:center; font-size:11px; color:var(--gray); cursor:pointer; margin-top:20px;">Switch Account</p>
+
+            <p onclick="logout()" style="text-align:center; font-size:11px; color:var(--gray); cursor:pointer; margin-top:30px;">Logout / Reset App</p>
         </div>
     </div>
 
 <script>
-    let selectedTopics = [];
+    let activeTopics = [];
 
-    function toggleTopic(el, topic) {
+    function sel(el, name) {
         el.classList.toggle('active');
-        if(selectedTopics.includes(topic)) {
-            selectedTopics = selectedTopics.filter(t => t !== topic);
-        } else {
-            selectedTopics.push(topic);
-        }
+        if(activeTopics.includes(name)) {
+            activeTopics = activeTopics.filter(t => t !== name);
+        } else { activeTopics.push(name); }
     }
 
-    function saveToken() {
-        const val = document.getElementById('tokenIn').value.trim();
+    function saveKey() {
+        const val = document.getElementById('hfToken').value.trim();
         if(val.startsWith('hf_')) {
-            localStorage.setItem('dg_key', val);
+            localStorage.setItem('globe_key', val);
             init();
-        } else { alert("Invalid token format."); }
+        } else { alert("Token must start with hf_"); }
     }
 
-    function logout() {
-        localStorage.clear();
-        location.reload();
-    }
+    function logout() { localStorage.clear(); location.reload(); }
 
     function init() {
-        if(localStorage.getItem('dg_key')) {
-            document.getElementById('setup').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
+        if(localStorage.getItem('globe_key')) {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('appSection').style.display = 'block';
         }
     }
 
-    async function getNews() {
-        if(selectedTopics.length === 0) return alert("Select topics in the stories bar!");
+    async function fetchNews() {
+        if(activeTopics.length === 0) return alert("Tap a story circle first!");
         
-        const status = document.getElementById('status');
         const feed = document.getElementById('feed');
+        const status = document.getElementById('status');
         const debug = document.getElementById('debug');
-        
-        status.innerText = "Refreshing feed...";
-        debug.innerText = "";
-        const token = localStorage.getItem('dg_key');
+        const token = localStorage.getItem('globe_key');
 
-        const rawUrl = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2";
-        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(rawUrl)}`;
+        status.innerText = "Connecting to Satellite...";
+        debug.innerText = "";
+
+        // 2026 ROUTER ENDPOINT
+        const apiTarget = "https://router.huggingface.co/hf-inference/v1/chat/completions";
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(apiTarget)}`;
 
         try {
-            const res = await fetch(proxyUrl, {
+            const response = await fetch(proxyUrl, {
                 method: "POST",
                 headers: { 
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    inputs: `[INST] Write 3 short viral news summaries for teens about ${selectedTopics.join(", ")}. Use emojis. [/INST]`,
-                    parameters: { max_new_tokens: 400, wait_for_model: true }
+                    model: "mistralai/Mistral-7B-Instruct-v0.2",
+                    messages: [
+                        { role: "user", content: `Generate 3 short, exciting news updates for teenagers about ${activeTopics.join(" and ")}. Use emojis.` }
+                    ],
+                    max_tokens: 500
                 })
             });
 
-            const data = await res.json();
+            const data = await response.json();
 
-            if (!res.ok) {
-                status.innerText = "Error";
-                debug.innerText = data.error || "Token error. Try a new one.";
-                return;
-            }
-
-            const rawText = data[0].generated_text.split('[/INST]')[1] || data[0].generated_text;
-            const items = rawText.split('\n').filter(line => line.length > 5);
-
-            feed.innerHTML = ""; // Clear old feed
-            items.forEach((item, index) => {
-                const post = `
-                    <div class="post">
-                        <div class="post-header">
-                            <div class="post-avatar">DG</div>
-                            <div class="post-username">dailyglobe_official</div>
+            if (response.ok) {
+                const content = data.choices[0].message.content;
+                // Split by double newlines or numbered lists
+                const items = content.split(/\n\d\.|\n\n/).filter(t => t.trim().length > 10);
+                
+                feed.innerHTML = "";
+                items.forEach(text => {
+                    feed.innerHTML += `
+                        <div class="post">
+                            <div class="p-header"><div class="avatar">DG</div> dailyglobe_official</div>
+                            <div class="p-content">${text.trim()}</div>
+                            <div class="p-actions">❤️ 💬 🚀</div>
+                            <div class="p-likes">${Math.floor(Math.random()*2000)+50} likes</div>
                         </div>
-                        <div class="post-content">${item}</div>
-                        <div class="post-actions">❤️ 💬 🚀</div>
-                        <div class="post-likes">${Math.floor(Math.random()*5000) + 100} likes</div>
-                    </div>
-                `;
-                feed.innerHTML += post;
-            });
-
-            status.innerText = "Feed updated";
-
-        } catch (err) {
-            status.innerText = "Connection Failed";
-            debug.innerText = "Browser blocked the API. Disable AdBlock or use Incognito Mode.";
+                    `;
+                });
+                status.innerText = "Feed Updated";
+            } else {
+                status.innerText = "API Error";
+                debug.innerText = data.error?.message || "Check your token permissions.";
+            }
+        } catch (e) {
+            status.innerText = "Network Blocked";
+            debug.innerText = "Check your connection or use Incognito mode.";
         }
     }
 
@@ -332,3 +174,4 @@
 </script>
 </body>
 </html>
+
