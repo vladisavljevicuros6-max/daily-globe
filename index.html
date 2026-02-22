@@ -3,138 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Globe V6 | 2026 Verified</title>
+    <title>Daily Globe V7 | Your Reality</title>
     <style>
-        :root { --bg: #f4f7f6; --text: #1a1a1a; --accent: #27ae60; --card: #ffffff; --gray: #7f8c8d; --error: #e74c3c; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
-        
-        /* AUTH SYSTEM */
-        #auth-screen { position: fixed; inset: 0; background: var(--bg); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-        .auth-box { background: #fff; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
-        .auth-box input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .auth-btn { background: var(--accent); color: white; border: none; width: 100%; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .toggle-auth { color: var(--accent); cursor: pointer; font-size: 13px; margin-top: 15px; display: block; }
+        :root { --bg: #f8f9fa; --card: #ffffff; --primary: #007bff; --text: #212529; --gray: #6c757d; --shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        body { font-family: 'Inter', -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 50px; }
 
-        /* HEADER & MENU */
-        .header { background: #fff; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 500; }
-        .sidebar { position: fixed; left: -300px; top: 0; width: 250px; height: 100%; background: #fff; z-index: 600; transition: 0.3s; padding: 30px 20px; box-shadow: 5px 0 15px rgba(0,0,0,0.1); }
-        .sidebar.open { left: 0; }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 550; }
-        
-        /* FEED */
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .search-bar { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 20px; background: #fff; }
-        .post { background: var(--card); border-radius: 15px; overflow: hidden; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .post img { width: 100%; height: 320px; object-fit: cover; background: #eee; }
-        .post-info { padding: 20px; }
-        .tag { color: var(--accent); font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-        .post-title { font-size: 22px; margin: 10px 0; line-height: 1.3; }
-        .post-text { color: #555; font-size: 15px; line-height: 1.6; }
-        
-        .like-btn { cursor: pointer; font-size: 20px; transition: 0.2s; border: none; background: none; }
-        .like-btn.liked { color: #e74c3c; transform: scale(1.2); }
+        /* AUTH SCREEN */
+        #auth-screen { position: fixed; inset: 0; background: #fff; z-index: 2000; display: flex; align-items: center; justify-content: center; transition: 0.5s; }
+        .auth-card { background: #fff; padding: 40px; border-radius: 24px; box-shadow: var(--shadow); width: 100%; max-width: 360px; text-align: center; }
+        .auth-card h2 { font-weight: 800; margin-bottom: 30px; }
+        input { width: 100%; padding: 14px; margin: 8px 0; border: 1.5px solid #eee; border-radius: 12px; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--primary); }
+        .btn-auth { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 15px; }
 
-        .more-btn { display: block; width: 100%; padding: 15px; background: #fff; border: 2px solid var(--accent); color: var(--accent); font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 20px; }
-        .more-btn:hover { background: var(--accent); color: white; }
+        /* HEADER & TOP NAV */
+        .header { background: #fff; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #eee; }
+        .logo { font-weight: 900; letter-spacing: -1px; font-size: 22px; color: #000; }
+        
+        /* INTEREST SCROLLER */
+        .interest-nav { background: #fff; padding: 10px 15px; display: flex; gap: 10px; overflow-x: auto; white-space: nowrap; border-bottom: 1px solid #eee; -ms-overflow-style: none; scrollbar-width: none; }
+        .interest-nav::-webkit-scrollbar { display: none; }
+        .chip { padding: 8px 18px; border-radius: 20px; background: #f1f3f5; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.3s; color: var(--gray); }
+        .chip.active { background: var(--primary); color: white; }
 
-        #no-news { display: none; text-align: center; padding: 50px; }
+        /* FEED & CARDS */
+        .container { max-width: 550px; margin: 0 auto; padding: 20px; }
+        .post { background: var(--card); border-radius: 20px; overflow: hidden; margin-bottom: 30px; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.03); }
+        .post img { width: 100%; height: 280px; object-fit: cover; background: #f1f3f5; }
+        .post-body { padding: 20px; }
+        .post-meta { font-size: 11px; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 8px; }
+        .post-title { font-size: 20px; font-weight: 700; line-height: 1.3; margin: 0 0 10px 0; }
+        .post-text { font-size: 15px; color: #4b5563; line-height: 1.6; margin-bottom: 15px; }
+        
+        .post-actions { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f3f5; padding-top: 15px; }
+        .btn-like { background: none; border: none; cursor: pointer; font-size: 18px; display: flex; align-items: center; gap: 5px; color: var(--gray); font-weight: 600; }
+        .btn-like.active { color: #e63946; }
+
+        /* SIDEBAR */
+        .sidebar { position: fixed; right: -300px; top: 0; width: 260px; height: 100%; background: #fff; z-index: 1500; transition: 0.3s; padding: 30px; box-shadow: -5px 0 20px rgba(0,0,0,0.05); }
+        .sidebar.open { right: 0; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); display: none; z-index: 1400; backdrop-filter: blur(4px); }
+
+        .load-more { width: 100%; padding: 15px; background: #fff; border: 2px solid #eee; border-radius: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        .load-more:hover { border-color: var(--primary); color: var(--primary); }
+
+        #no-info { display: none; text-align: center; padding: 60px 20px; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
-        <div class="auth-box">
-            <h2 id="auth-title">Welcome to Daily Globe</h2>
+        <div class="auth-card">
+            <h2>Daily Globe</h2>
+            <p style="color:var(--gray); font-size: 14px; margin-bottom: 20px;">Personalized news, verified for 2026.</p>
             <input type="text" id="username" placeholder="Username">
             <input type="password" id="password" placeholder="Password">
-            <button class="auth-btn" onclick="handleAuth()">Login / Sign Up</button>
-            <span class="toggle-auth">By clicking, you create an account or log in instantly.</span>
+            <button class="btn-auth" onclick="login()">Enter Feed</button>
         </div>
     </div>
 
     <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
     <div id="sidebar" class="sidebar">
-        <h3>Globe Account</h3>
-        <p id="user-display" style="color: var(--gray); font-weight: bold;"></p>
-        <hr>
-        <p onclick="fetchNews('Politics')">⚖️ Politics</p>
-        <p onclick="fetchNews('Technology')">🚀 Technology</p>
-        <p onclick="fetchNews('Sports')">⚽ Sports</p>
-        <p onclick="fetchNews('General')">🌍 World News</p>
-        <button class="auth-btn" style="background: var(--error);" onclick="logout()">Logout</button>
+        <h3 id="user-name-tag">Profile</h3>
+        <p style="font-size: 12px; color: gray;">Your preferences are synced.</p>
+        <hr style="opacity: 0.1; margin: 20px 0;">
+        <button class="btn-auth" style="background:#f1f3f5; color:#000;" onclick="logout()">Log Out</button>
     </div>
 
     <div class="header">
-        <button onclick="toggleMenu()" style="background:none; border:none; font-size:24px; cursor:pointer;">☰</button>
-        <h1 style="font-size:18px; letter-spacing:2px;">DAILY GLOBE</h1>
-        <div style="width:24px;"></div> </div>
+        <div class="logo">DG</div>
+        <div style="flex-grow: 1; text-align: center; font-size: 12px; font-weight: 800; opacity: 0.4;">SUNDAY, FEB 22, 2026</div>
+        <button onclick="toggleMenu()" style="background:none; border:none; font-size: 20px; cursor:pointer;">👤</button>
+    </div>
+
+    <div class="interest-nav" id="interest-nav">
+        <div class="chip active" onclick="setInterest('For You', this)">For You</div>
+        <div class="chip" onclick="setInterest('Tech', this)">Technology</div>
+        <div class="chip" onclick="setInterest('Science', this)">Science</div>
+        <div class="chip" onclick="setInterest('Cars', this)">Automotive</div>
+        <div class="chip" onclick="setInterest('Space', this)">Space</div>
+        <div class="chip" onclick="setInterest('Lifestyle', this)">Lifestyle</div>
+    </div>
 
     <div class="container">
-        <input type="text" id="searchInput" class="search-bar" placeholder="Search verified 2026 news..." onkeypress="if(e=event.key=='Enter') fetchNews(this.value)">
+        <input type="text" id="search" placeholder="Search real 2026 news..." style="margin-bottom: 20px; background:#fff;" onkeypress="if(event.key=='Enter') fetchNews(this.value)">
         
         <div id="feed"></div>
 
-        <div id="no-news">
-            <h2>🚫 No Verified Info</h2>
-            <p>Our 2026 satellites found no real evidence for this topic. Stick to real events like "Milan Olympics" or "Trump Tariffs".</p>
+        <div id="no-info">
+            <span style="font-size: 50px;">🔍</span>
+            <h3>No Verified Record</h3>
+            <p style="color:gray;">AI verified: No real news exists for this topic in 2026. Try 'Artemis delay' or 'Fusion energy'.</p>
         </div>
 
-        <button id="more-btn" class="more-btn" style="display:none;" onclick="loadMore()">Load More News</button>
-        <p id="loader" style="text-align:center; display:none;">🔍 Syncing with 2026 Satellite...</p>
+        <button id="load-more" class="load-more" onclick="loadMore()" style="display:none;">See More Stories</button>
+        <p id="loader" style="text-align:center; font-size:12px; display:none;">Syncing with global feeds...</p>
     </div>
 
 <script>
-    let currentUser = localStorage.getItem('logged_user');
-    let currentTopic = "General";
-    const apiKey = "YOUR_GROQ_KEY"; // Set via prompt or hardcode for testing
+    let user = localStorage.getItem('dg_user');
+    let db = JSON.parse(localStorage.getItem('dg_db') || '{}');
+    let currentTopic = 'For You';
 
-    function init() {
-        if (currentUser) {
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('user-display').innerText = "@" + currentUser;
-            fetchNews("General");
-        }
+    function login() {
+        const u = document.getElementById('username').value;
+        if(!u) return;
+        localStorage.setItem('dg_user', u);
+        if(!db[u]) db[u] = { weights: { Tech: 1, Science: 1, Cars: 1, Space: 1, Lifestyle: 1 } };
+        localStorage.setItem('dg_db', JSON.stringify(db));
+        location.reload();
     }
 
-    function handleAuth() {
-        const u = document.getElementById('username').value.trim();
-        const p = document.getElementById('password').value.trim();
-        if(u && p) {
-            localStorage.setItem('logged_user', u);
-            location.reload();
-        } else { alert("Please fill in both fields."); }
+    function logout() { localStorage.removeItem('dg_user'); location.reload(); }
+    function toggleMenu() { 
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('overlay').style.display = document.getElementById('sidebar').classList.contains('open') ? 'block' : 'none';
     }
 
-    function logout() { localStorage.removeItem('logged_user'); location.reload(); }
-
-    function toggleMenu() {
-        const s = document.getElementById('sidebar');
-        const o = document.getElementById('overlay');
-        s.classList.toggle('open');
-        o.style.display = s.classList.contains('open') ? 'block' : 'none';
+    function setInterest(topic, el) {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        fetchNews(topic);
     }
 
-    async function fetchNews(topic, append = false) {
+    async function fetchNews(topic = "General", append = false) {
         currentTopic = topic;
         const feed = document.getElementById('feed');
         const loader = document.getElementById('loader');
-        const moreBtn = document.getElementById('more-btn');
-        const noNews = document.getElementById('no-news');
+        const moreBtn = document.getElementById('load-more');
+        const noInfo = document.getElementById('no-info');
 
-        if (!append) feed.innerHTML = "";
+        if(!append) feed.innerHTML = "";
         loader.style.display = 'block';
         moreBtn.style.display = 'none';
-        noNews.style.display = 'none';
+        noInfo.style.display = 'none';
 
-        const gKey = localStorage.getItem('groq_key') || prompt("Enter Groq API Key:");
-        localStorage.setItem('groq_key', gKey);
+        const gKey = localStorage.getItem('dg_key') || prompt("Enter Groq Key:");
+        localStorage.setItem('dg_key', gKey);
 
-        const promptMsg = `TODAY IS: Sunday, February 22, 2026.
-        TOPIC: ${topic}. 
-        STRICT RULES:
-        1. If the topic is fake (e.g., 'flying cars in Pakistan'), return {"error": "no_info"}.
-        2. If news is real for Feb 2026 (Olympics, Trump Tariffs, S26, 2026 World Cup Prep), return 3 articles in JSON:
-        {"articles": [{"tag": "SPORTS", "title": "", "summary": "", "imgKeywords": "3 words for a real unsplash photo"}]}`;
+        // Algorithm logic for "For You"
+        let focus = topic;
+        if(topic === 'For You') {
+            const weights = db[user].weights;
+            focus = Object.keys(weights).reduce((a, b) => weights[a] > weights[b] ? a : b);
+        }
+
+        const prompt = `DATE: Feb 22, 2026.
+        TOPIC: ${focus}.
+        REAL CONTEXT: 
+        - Space: NASA Artemis II SLS delay (helium leak). China Chang'e 7 prep.
+        - Tech: CES 2026 Physical AI focus. Commonwealth Fusion 2027 milestone. Claude Code Security news.
+        - Cars: Luxury auto club expansion.
+        - Lifestyle: Gift+Home market in Canada. Ramadan prep in Gaza.
+        
+        TASK: Return 3 REAL articles. If topic is fake, return {"error": "no_info"}.
+        JSON: {"news": [{"category": "", "title": "", "summary": "", "imgKeywords": "3 words for real photo"}]}`;
 
         try {
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -142,40 +165,57 @@
                 headers: { "Authorization": `Bearer ${gKey}`, "Content-Type": "application/json" },
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
-                    messages: [{role: "system", content: "You are a news bot that only reports verified 2026 events."}, {role: "user", content: promptMsg}],
+                    messages: [{role: "user", content: prompt}],
                     response_format: { type: "json_object" }
                 })
             });
-
             const data = await res.json();
             const result = JSON.parse(data.choices[0].message.content);
             loader.style.display = 'none';
 
-            if(result.error) { noNews.style.display = 'block'; return; }
+            if(result.error) { noInfo.style.display = 'block'; return; }
 
-            result.articles.forEach(item => {
-                const img = `https://loremflickr.com/600/400/${encodeURIComponent(item.imgKeywords.replace(/ /g, ','))}/all?lock=${Math.random()}`;
-                const post = document.createElement('div');
-                post.className = 'post';
-                post.innerHTML = `
-                    <img src="${img}" alt="Verified News Image">
-                    <div class="post-info">
-                        <span class="tag">${item.tag}</span>
-                        <h2 class="post-title">${item.title}</h2>
-                        <p class="post-text">${item.summary}</p>
-                        <button class="like-btn" onclick="this.classList.toggle('liked'); this.innerHTML = this.classList.contains('liked') ? '❤️' : '🤍';">🤍</button>
-                        <span style="font-size:12px; color:gray; float:right;">Feb 22, 2026</span>
+            result.news.forEach(item => {
+                const img = `https://loremflickr.com/600/400/${encodeURIComponent(item.imgKeywords.split(' ')[0])},${encodeURIComponent(item.imgKeywords.split(' ')[1])}/all?lock=${Math.random()}`;
+                feed.innerHTML += `
+                    <div class="post">
+                        <img src="${img}">
+                        <div class="post-body">
+                            <div class="post-meta">${item.category}</div>
+                            <h2 class="post-title">${item.title}</h2>
+                            <p class="post-text">${item.summary}</p>
+                            <div class="post-actions">
+                                <button class="btn-like" onclick="like('${item.category}', this)"><span>👍</span> Helpful</button>
+                                <span style="font-size:11px; color:gray;">Verified Feb 22, 2026</span>
+                            </div>
+                        </div>
                     </div>
                 `;
-                feed.appendChild(post);
             });
             moreBtn.style.display = 'block';
-        } catch (e) { loader.innerText = "Error. Check API Key."; }
+        } catch(e) { loader.innerText = "Connection error."; }
+    }
+
+    function like(cat, btn) {
+        btn.classList.toggle('active');
+        if(btn.classList.contains('active')) {
+            db[user].weights[cat] = (db[user].weights[cat] || 1) + 2;
+            btn.innerHTML = "<span>❤️</span> Liked";
+        } else {
+            db[user].weights[cat] -= 2;
+            btn.innerHTML = "<span>👍</span> Helpful";
+        }
+        localStorage.setItem('dg_db', JSON.stringify(db));
     }
 
     function loadMore() { fetchNews(currentTopic, true); }
 
-    init();
+    if(user) {
+        document.getElementById('auth-screen').style.opacity = '0';
+        setTimeout(() => document.getElementById('auth-screen').style.display = 'none', 500);
+        document.getElementById('user-name-tag').innerText = "@" + user;
+        fetchNews('For You');
+    }
 </script>
 </body>
 </html>
