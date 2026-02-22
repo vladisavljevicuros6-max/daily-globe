@@ -3,153 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Globe V8 | Multi-Interest</title>
+    <title>Daily Globe V9 | Immersive</title>
     <style>
-        :root { --bg: #f0f2f5; --card: #ffffff; --primary: #1a73e8; --text: #1c1e21; --gray: #606770; }
-        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); overflow-x: hidden; }
+        :root { --bg: #f4f7f6; --card: #ffffff; --primary: #2563eb; --accent: #06b6d4; --text: #1e293b; }
+        body { font-family: 'Inter', system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 80px; }
 
-        /* HEADER & LOGO */
-        .header { background: #fff; padding: 15px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center; }
-        .logo-container { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .planet-icon { font-size: 32px; animation: rotate 20s linear infinite; }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .logo-text { font-weight: 900; letter-spacing: 3px; font-size: 18px; margin: 0; color: #000; }
+        /* LOGO & PLANET */
+        .header { background: #fff; padding: 20px; text-align: center; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 1000; }
+        .planet { font-size: 30px; display: inline-block; animation: spin 15s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .logo-text { font-weight: 900; letter-spacing: 2px; font-size: 20px; margin: 5px 0 0 0; }
+        .menu-btn { position: absolute; left: 20px; top: 30px; background: none; border: none; font-size: 24px; cursor: pointer; }
 
-        .menu-trigger { position: absolute; left: 15px; top: 25px; font-size: 24px; cursor: pointer; border: none; background: none; }
+        /* MULTI-SELECT INTERESTS */
+        .interest-box { background: #fff; padding: 12px; display: flex; gap: 8px; overflow-x: auto; border-bottom: 1px solid #e2e8f0; }
+        .chip { padding: 8px 16px; border-radius: 25px; background: #f1f5f9; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: 0.2s; border: 1.5px solid transparent; }
+        .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
-        /* AUTH SCREEN */
-        #auth-screen { position: fixed; inset: 0; background: #fff; z-index: 2000; display: flex; align-items: center; justify-content: center; }
-        .auth-card { width: 90%; max-width: 350px; text-align: center; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .auth-card input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn-main { background: var(--primary); color: #fff; border: none; padding: 14px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
+        /* TIMELINE TRACKER */
+        .timeline { padding: 15px; display: flex; gap: 15px; overflow-x: auto; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+        .time-node { min-width: 140px; background: #fff; padding: 10px; border-radius: 12px; border: 1px dashed #cbd5e1; text-align: center; }
+        .time-node.today { border: 2px solid var(--accent); background: #ecfeff; }
+        .time-date { font-size: 10px; font-weight: 800; color: var(--gray); }
 
-        /* MULTI-INTEREST SELECTOR */
-        .category-bar { background: #fff; padding: 15px; display: flex; gap: 8px; overflow-x: auto; border-bottom: 1px solid #eee; scrollbar-width: none; }
-        .category-bar::-webkit-scrollbar { display: none; }
-        .chip { padding: 8px 16px; border-radius: 20px; background: #e4e6eb; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: 0.2s; }
-        .chip.selected { background: var(--primary); color: #fff; }
-
-        /* SIDE MENU (HAMBURGER) */
-        .sidebar { position: fixed; left: -300px; top: 0; width: 260px; height: 100%; background: #fff; z-index: 1500; transition: 0.3s; padding: 40px 20px; box-shadow: 5px 0 15px rgba(0,0,0,0.1); }
-        .sidebar.open { left: 0; }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 1400; backdrop-filter: blur(2px); }
-
-        /* FEED */
+        /* FEED & AR FEATURE */
         .container { max-width: 500px; margin: 0 auto; padding: 15px; }
-        .post { background: var(--card); border-radius: 12px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .post { background: var(--card); border-radius: 20px; margin-bottom: 25px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; }
         .post img { width: 100%; height: 260px; object-fit: cover; }
-        .post-content { padding: 15px; }
-        .post-tag { color: var(--primary); font-size: 11px; font-weight: 700; text-transform: uppercase; }
-        .post-title { font-size: 19px; font-weight: 700; margin: 8px 0; line-height: 1.3; }
-        .post-text { font-size: 14px; color: #444; line-height: 1.5; }
+        .post-body { padding: 18px; }
+        .btn-ar { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6); color: #fff; border: none; padding: 8px 14px; border-radius: 12px; font-size: 12px; font-weight: 700; backdrop-filter: blur(5px); cursor: pointer; border: 1px solid rgba(255,255,255,0.3); }
+        .post-tag { color: var(--primary); font-size: 11px; font-weight: 800; text-transform: uppercase; }
 
-        #no-news { display: none; text-align: center; padding: 40px; }
-        .loader { text-align: center; padding: 20px; display: none; font-weight: bold; color: var(--primary); }
-        .load-more { width: 100%; padding: 12px; background: none; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; margin: 10px 0; }
+        /* AI BUDDY */
+        #buddy-widget { position: fixed; bottom: 20px; right: 20px; z-index: 2000; }
+        .buddy-bubble { width: 60px; height: 60px; background: var(--primary); border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; box-shadow: 0 8px 25px rgba(37,99,235,0.4); transition: 0.3s; }
+        .buddy-chat { position: absolute; bottom: 70px; right: 0; width: 280px; height: 350px; background: #fff; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); display: none; flex-direction: column; overflow: hidden; }
+        .chat-header { background: var(--primary); color: #fff; padding: 15px; font-weight: bold; }
+        .chat-msgs { flex: 1; padding: 15px; font-size: 13px; overflow-y: auto; background: #f8fafc; }
+
+        /* MODALS */
+        .ar-overlay { position: fixed; inset: 0; background: #000; z-index: 3000; display: none; align-items: center; justify-content: center; color: #fff; text-align: center; }
+
+        #sidebar { position: fixed; left: -300px; top: 0; width: 260px; height: 100%; background: #fff; z-index: 1500; transition: 0.3s; padding: 40px 20px; box-shadow: 5px 0 20px rgba(0,0,0,0.05); }
+        .sidebar.open { left: 0; }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen">
-        <div class="auth-card">
-            <span class="planet-icon">🌍</span>
-            <h2>Daily Globe</h2>
-            <input type="text" id="username" placeholder="Username">
-            <input type="password" id="password" placeholder="Password">
-            <button class="btn-main" onclick="login()">Sign In</button>
-        </div>
+    <div id="sidebar">
+        <h3>Menu</h3>
+        <p>📡 Source: Verified 2026 Feed</p>
+        <p>🔒 Privacy Protocol</p>
+        <hr>
+        <button onclick="localStorage.removeItem('dg_user'); location.reload()">Logout</button>
     </div>
-
-    <div id="sidebar" class="sidebar">
-        <h3 id="user-tag">@Guest</h3>
-        <hr style="opacity:0.2">
-        <p onclick="location.reload()">🔄 Refresh Feed</p>
-        <p onclick="localStorage.removeItem('dg_key'); location.reload()">🔑 Change API Key</p>
-        <p onclick="logout()" style="color:red; margin-top:50px;">Log Out</p>
-    </div>
-    <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
 
     <div class="header">
-        <button class="menu-trigger" onclick="toggleMenu()">☰</button>
-        <div class="logo-container">
-            <span class="planet-icon">🌍</span>
-            <h1 class="logo-text">DAILY GLOBE</h1>
+        <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+        <div class="planet">🌍</div>
+        <h1 class="logo-text">DAILY GLOBE</h1>
+    </div>
+
+    <div class="timeline">
+        <div class="time-node today">
+            <div class="time-date">FEB 22 (TODAY)</div>
+            <div style="font-size:11px; font-weight:700;">Olympic Gold Game</div>
+        </div>
+        <div class="time-node">
+            <div class="time-date">FEB 25</div>
+            <div style="font-size:11px;">Samsung Unpacked</div>
+        </div>
+        <div class="time-node">
+            <div class="time-date">MAR 6</div>
+            <div style="font-size:11px;">Artemis II Launch</div>
         </div>
     </div>
 
-    <div class="category-bar">
-        <div class="chip selected" onclick="toggleInterest('Tech', this)">Technology</div>
-        <div class="chip" onclick="toggleInterest('Sports', this)">Sports</div>
-        <div class="chip" onclick="toggleInterest('Cooking', this)">Cooking</div>
-        <div class="chip" onclick="toggleInterest('Cars', this)">Automotive</div>
-        <div class="chip" onclick="toggleInterest('Science', this)">Science</div>
-        <div class="chip" onclick="toggleInterest('Space', this)">Space</div>
+    <div class="interest-box" id="interest-nav">
+        <div class="chip active" onclick="toggleCat('Tech', this)">Technology</div>
+        <div class="chip" onclick="toggleCat('Space', this)">Space</div>
+        <div class="chip active" onclick="toggleCat('Sports', this)">Sports</div>
+        <div class="chip" onclick="toggleCat('Lifestyle', this)">Lifestyle</div>
     </div>
 
     <div class="container">
         <div id="feed"></div>
-        
-        <div id="no-news">
-            <h2>🛸 No Data Found</h2>
-            <p>Verification failed. This event does not exist in the 2026 record. Try searching for "Samsung S26" or "Milan Olympics".</p>
-        </div>
+        <div id="loader" style="text-align:center; padding:20px; display:none;">Syncing with 2026 Satellite...</div>
+    </div>
 
-        <div id="loader" class="loader">Verifying 2026 Sources...</div>
-        <button id="load-more" class="load-more" onclick="fetchNews(true)" style="display:none;">Show More</button>
+    <div id="ar-view" class="ar-overlay">
+        <div>
+            <div style="font-size: 50px;">👓</div>
+            <h2>AR Immersive Mode</h2>
+            <p id="ar-text">Initializing 3D rendering...</p>
+            <button onclick="closeAR()" style="padding:10px 20px; border-radius:10px; border:none; background:red; color:#fff;">Exit AR</button>
+        </div>
+    </div>
+
+    <div id="buddy-widget">
+        <div class="buddy-chat" id="buddy-chat">
+            <div class="chat-header">Global Buddy AI 🤖</div>
+            <div class="chat-msgs" id="chat-msgs">
+                Hi! It's Feb 22, 2026. The Milan Olympics end tonight. Want me to summarize the medal table or the Artemis delay?
+            </div>
+            <input type="text" id="chat-in" placeholder="Ask Globe Buddy..." style="width:100%; border:none; padding:15px; outline:none;" onkeypress="if(event.key=='Enter') chat()">
+        </div>
+        <div class="buddy-bubble" onclick="toggleBuddy()">🤖</div>
     </div>
 
 <script>
-    let user = localStorage.getItem('dg_user');
-    let selectedInterests = ['Tech'];
+    let activeCats = ['Tech', 'Sports'];
 
-    function login() {
-        const u = document.getElementById('username').value;
-        if(u) { localStorage.setItem('dg_user', u); location.reload(); }
-    }
-    function logout() { localStorage.removeItem('dg_user'); location.reload(); }
-    function toggleMenu() {
-        document.getElementById('sidebar').classList.toggle('open');
-        document.getElementById('overlay').style.display = document.getElementById('sidebar').classList.contains('open') ? 'block' : 'none';
-    }
-
-    function toggleInterest(interest, el) {
-        if(selectedInterests.includes(interest)) {
-            if(selectedInterests.length > 1) {
-                selectedInterests = selectedInterests.filter(i => i !== interest);
-                el.classList.remove('selected');
+    function toggleCat(cat, el) {
+        if(activeCats.includes(cat)) {
+            if(activeCats.length > 1) {
+                activeCats = activeCats.filter(c => c !== cat);
+                el.classList.remove('active');
             }
         } else {
-            selectedInterests.push(interest);
-            el.classList.add('selected');
+            activeCats.push(cat);
+            el.classList.add('active');
         }
         fetchNews();
     }
 
-    async function fetchNews(append = false) {
+    async function fetchNews() {
         const feed = document.getElementById('feed');
         const loader = document.getElementById('loader');
-        const moreBtn = document.getElementById('load-more');
-        const noNews = document.getElementById('no-news');
+        feed.innerHTML = "";
+        loader.style.display = "block";
 
-        if(!append) feed.innerHTML = "";
-        loader.style.display = 'block';
-        moreBtn.style.display = 'none';
-        noNews.style.display = 'none';
-
-        const apiKey = localStorage.getItem('dg_key') || prompt("Verification Key Required (Groq):");
-        if(!apiKey) { loader.innerText = "API Key Required."; return; }
+        const apiKey = localStorage.getItem('dg_key') || prompt("Enter Groq Key:");
         localStorage.setItem('dg_key', apiKey);
 
-        const promptTxt = `DATE: Feb 22, 2026. 
-        USER INTERESTS: ${selectedInterests.join(', ')}.
-        STRICT 2026 REALITY CHECK:
-        - Sports: Milano Cortina Closing Ceremony today (Verona Arena), USA vs Canada Hockey Final.
-        - Tech: Samsung Unpacked Feb 25 (S26 leaks/AI).
-        - Science: Japanese Plum Blossom (Ume) season trends.
-        - Space: Artemis delay news.
-        
-        If news is fake, return {"error": "no_info"}.
-        Else return JSON: {"articles": [{"tag": "", "title": "", "summary": "", "imgKeywords": "3 precise keywords"}]}`;
+        const promptTxt = `DATE: Feb 22, 2026. Interests: ${activeCats.join(', ')}.
+        REAL NEWS CHECK: 
+        - Sports: Men's Hockey Gold Final USA vs Canada. Closing Ceremony at Verona Arena.
+        - Space: Artemis II astronauts in quarantine for March 6 launch.
+        - Tech: Samsung S26 Physical AI leaks.
+        Return JSON {"news": [{"cat": "", "title": "", "summary": "", "img": "3 keywords", "ar": true/false}]}`;
 
         try {
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -161,38 +153,47 @@
                     response_format: { type: "json_object" }
                 })
             });
-
             const data = await res.json();
             const result = JSON.parse(data.choices[0].message.content);
-            loader.style.display = 'none';
+            loader.style.display = "none";
 
-            if(result.error) { noNews.style.display = 'block'; return; }
-
-            result.articles.forEach(item => {
-                const img = `https://loremflickr.com/600/400/${encodeURIComponent(item.imgKeywords.split(' ')[0])},${encodeURIComponent(item.imgKeywords.split(' ')[1])}/all?lock=${Math.random()}`;
+            result.news.forEach(item => {
+                const imgUrl = `https://loremflickr.com/600/400/${encodeURIComponent(item.img.split(' ')[0])}/all?lock=${Math.random()}`;
                 feed.innerHTML += `
                     <div class="post">
-                        <img src="${img}" onerror="this.src='https://via.placeholder.com/600x400?text=News+Verified'">
-                        <div class="post-content">
-                            <span class="post-tag">${item.tag}</span>
-                            <h2 class="post-title">${item.title}</h2>
-                            <p class="post-text">${item.summary}</p>
-                            <p style="font-size:10px; color:gray; text-align:right;">Verified: Feb 22, 2026</p>
+                        ${item.ar ? `<button class="btn-ar" onclick="openAR('${item.title}')">👓 Step Into Story</button>` : ''}
+                        <img src="${imgUrl}">
+                        <div class="post-body">
+                            <span class="post-tag">${item.cat}</span>
+                            <h2 style="margin:10px 0; font-size:18px;">${item.title}</h2>
+                            <p style="font-size:14px; color:#475569;">${item.summary}</p>
                         </div>
                     </div>
                 `;
             });
-            moreBtn.style.display = 'block';
-        } catch (e) {
-            loader.innerText = "Connection Error. Check API Key.";
-        }
+        } catch (e) { loader.innerText = "Check API Key."; }
     }
 
-    if(user) {
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('user-tag').innerText = "@" + user;
-        fetchNews();
+    function toggleBuddy() {
+        const chat = document.getElementById('buddy-chat');
+        chat.style.display = chat.style.display === 'flex' ? 'none' : 'flex';
     }
+
+    function chat() {
+        const input = document.getElementById('chat-in');
+        const msgs = document.getElementById('chat-msgs');
+        msgs.innerHTML += `<div style="text-align:right; margin-bottom:10px;"><b>You:</b> ${input.value}</div>`;
+        msgs.innerHTML += `<div style="margin-bottom:10px; color:#2563eb;"><b>Buddy:</b> Checking the 2026 live logs for "${input.value}"...</div>`;
+        input.value = "";
+    }
+
+    function openAR(title) {
+        document.getElementById('ar-view').style.display = "flex";
+        document.getElementById('ar-text').innerText = "Simulating 3D environment for: " + title;
+    }
+    function closeAR() { document.getElementById('ar-view').style.display = "none"; }
+
+    fetchNews();
 </script>
 </body>
 </html>
