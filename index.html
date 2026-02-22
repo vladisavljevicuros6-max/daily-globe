@@ -3,106 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Globe V14 | Dossier Protocol</title>
+    <title>Daily Globe V15 | Prism Protocol</title>
     <style>
-        :root { --bg: #0b0f1a; --card: #161b2c; --text: #e2e8f0; --accent: #3b82f6; --meta: #94a3b8; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); line-height: 1.5; }
+        :root { --bg: #05070a; --card: #11141d; --text: #f1f5f9; --accent: #3b82f6; --dim: #94a3b8; }
+        body { font-family: 'Inter', -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
 
-        /* UI SHELL */
-        .header { background: rgba(11, 15, 26, 0.95); backdrop-filter: blur(12px); padding: 15px 20px; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: space-between; }
-        .logo { font-weight: 900; letter-spacing: 3px; font-size: 20px; color: #fff; }
+        /* HEADER */
+        .header { background: #000; padding: 20px; border-bottom: 1px solid #1e293b; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 900; letter-spacing: 4px; font-size: 18px; color: var(--accent); }
         
-        /* CATEGORY NAV */
-        .tabs { display: flex; overflow-x: auto; padding: 10px 15px; gap: 8px; background: var(--bg); border-bottom: 1px solid rgba(255,255,255,0.05); scrollbar-width: none; }
-        .tab { padding: 6px 14px; border-radius: 12px; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; white-space: nowrap; font-size: 12px; font-weight: 600; color: var(--meta); transition: 0.2s; }
-        .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); transform: translateY(-2px); }
-
-        /* SEARCH */
-        .search-box { padding: 10px 20px; }
-        .search-bar { width: 100%; padding: 12px 18px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); background: #1e293b; color: #fff; outline: none; }
+        /* CATEGORY TABS */
+        .tabs { display: flex; overflow-x: auto; padding: 15px; gap: 10px; background: #000; border-bottom: 1px solid #1e293b; scrollbar-width: none; }
+        .tab { padding: 8px 18px; border-radius: 20px; background: #1e293b; border: 1px solid transparent; cursor: pointer; white-space: nowrap; font-size: 12px; font-weight: 700; color: var(--dim); transition: 0.3s; }
+        .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
         /* FEED & CARDS */
         .feed { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .card { background: var(--card); border-radius: 20px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden; }
-        .card img { width: 100%; height: 220px; object-fit: cover; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .card-content { padding: 20px; }
-        .card-tag { font-size: 10px; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; display: block; }
-        .btn-full { background: rgba(59, 130, 246, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 15px; width: 100%; }
+        .card { background: var(--card); border-radius: 24px; margin-bottom: 30px; overflow: hidden; border: 1px solid #1e293b; }
+        .card-img { width: 100%; height: 240px; background: #1e293b; object-fit: cover; }
+        .card-body { padding: 25px; }
+        .tag { font-size: 10px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+        .btn-open { width: 100%; padding: 12px; margin-top: 15px; border-radius: 12px; border: 1px solid var(--accent); background: rgba(59,130,246,0.1); color: var(--accent); font-weight: 700; cursor: pointer; }
 
         /* DOSSIER (FULLSCREEN) */
-        .dossier { position: fixed; inset: 0; background: var(--bg); z-index: 5000; display: none; overflow-y: auto; }
-        .dossier-header { position: sticky; top: 0; background: var(--bg); padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
-        .dossier-body { max-width: 700px; margin: 0 auto; padding: 20px; }
-        .dossier-img { width: 100%; max-height: 350px; object-fit: cover; border-radius: 15px; margin-bottom: 25px; }
+        .dossier { position: fixed; inset: 0; background: #000; z-index: 2000; display: none; overflow-y: auto; padding: 40px 20px; }
+        .dossier-inner { max-width: 650px; margin: 0 auto; }
+        .dossier-img { width: 100%; border-radius: 20px; margin-bottom: 30px; }
+        .close-btn { position: sticky; top: 0; background: var(--accent); color: #fff; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: 800; cursor: pointer; margin-bottom: 30px; }
 
-        /* AI BUDDY 5.0 */
-        .buddy-fab { position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; z-index: 4000; box-shadow: 0 10px 30px rgba(59,130,246,0.5); }
-        .buddy-window { position: fixed; bottom: 100px; right: 25px; width: 320px; height: 450px; background: #1e293b; border-radius: 20px; display: none; flex-direction: column; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); z-index: 4001; }
-        .chat-msgs { flex: 1; padding: 15px; overflow-y: auto; font-size: 13px; }
-        .chat-input { padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; }
+        /* SEARCH & LOADER */
+        .search-area { padding: 10px 20px; }
+        .search-bar { width: 100%; padding: 14px; border-radius: 15px; border: 1px solid #1e293b; background: #11141d; color: #fff; }
+        #loader { text-align: center; padding: 50px; color: var(--accent); font-weight: 800; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <div class="logo">DAILY GLOBE</div>
-        <div id="date" style="font-size:11px; color:var(--meta)">FEB 22, 2026</div>
+        <div style="font-size: 10px; opacity: 0.6;">FEB 22, 2026</div>
     </div>
 
-    <div class="tabs">
-        <div class="tab active" onclick="setCat('Trending', this)">🏠 Home</div>
-        <div class="tab" onclick="setCat('Gaming', this)">🎮 Gaming</div>
-        <div class="tab" onclick="setCat('Tech', this)">💻 Tech</div>
-        <div class="tab" onclick="setCat('Sport', this)">🏅 Sport</div>
-        <div class="tab" onclick="setCat('Cars', this)">🚗 Cars</div>
-        <div class="tab" onclick="setCat('Cooking', this)">🍳 Cooking</div>
-        <div class="tab" onclick="setCat('Politics', this)">⚖️ Politics</div>
+    <div class="tabs" id="tabContainer">
+        <div class="tab active" onclick="changeCategory('Trending', this)">Home</div>
+        <div class="tab" onclick="changeCategory('Gaming', this)">Gaming</div>
+        <div class="tab" onclick="changeCategory('Tech', this)">Tech</div>
+        <div class="tab" onclick="changeCategory('Sport', this)">Sport</div>
+        <div class="tab" onclick="changeCategory('Cars', this)">Cars</div>
+        <div class="tab" onclick="changeCategory('Cooking', this)">Cooking</div>
+        <div class="tab" onclick="changeCategory('Politics', this)">Politics</div>
     </div>
 
-    <div class="search-box">
-        <input type="text" id="search" class="search-bar" placeholder="Search archive (historical searches allowed)..." onkeypress="if(event.key=='Enter') fetchNews(false, true)">
+    <div class="search-area">
+        <input type="text" id="search" class="search-bar" placeholder="Search 2026 records..." onkeypress="if(event.key=='Enter') fetchNews(false, true)">
     </div>
 
     <div class="feed" id="feed"></div>
-    <div id="loader" style="text-align:center; padding:50px; display:none">📡 Syncing with 2026 Data Stream...</div>
-    <button id="loadMore" class="btn-full" style="max-width:200px; margin: 0 auto 50px auto; display:none" onclick="fetchNews(true)">LOAD MORE NEWS</button>
+    <div id="loader" style="display:none">SYNCING DATA...</div>
+    <button id="loadMore" style="display:none; margin: 20px auto; width: 200px;" class="btn-open" onclick="fetchNews(true)">LOAD MORE</button>
 
     <div class="dossier" id="dossier">
-        <div class="dossier-header">
-            <span style="font-weight:900; color:var(--accent)">NEWS DOSSIER</span>
-            <button onclick="closeDossier()" style="background:none; border:none; color:#fff; cursor:pointer; font-size:20px">✕</button>
-        </div>
-        <div class="dossier-body" id="dossierBody"></div>
-    </div>
-
-    <div class="buddy-fab" onclick="toggleBuddy()">🤖</div>
-    <div class="buddy-window" id="buddyWindow">
-        <div style="background:var(--accent); padding:15px; font-weight:700">Globe Buddy 5.0</div>
-        <div class="chat-msgs" id="chatMsgs"><b>Buddy:</b> Feb 22, 2026. Closing ceremony in Verona tonight! GTA VI is Nov 19. Ask me anything.</div>
-        <div class="chat-input">
-            <input type="text" id="chatIn" placeholder="Query..." style="flex:1; background:none; border:none; color:#fff; outline:none" onkeypress="if(event.key=='Enter') chat()">
-            <button onclick="chat()" style="background:none; border:none; color:var(--accent); cursor:pointer">➔</button>
+        <div class="dossier-inner">
+            <button class="close-btn" onclick="closeDossier()">CLOSE FULLSCREEN VIEW</button>
+            <div id="dossierContent"></div>
         </div>
     </div>
 
 <script>
-    let currentCat = "Trending";
+    let activeCat = "Trending";
     let page = 1;
 
-    function toggleBuddy() { const b = document.getElementById('buddyWindow'); b.style.display = b.style.display === 'flex' ? 'none' : 'flex'; }
-    function closeDossier() { document.getElementById('dossier').style.display = "none"; }
-    function setCat(cat, el) {
+    function changeCategory(cat, el) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         el.classList.add('active');
-        currentCat = cat;
+        activeCat = cat;
         fetchNews();
     }
+
+    function closeDossier() { document.getElementById('dossier').style.display = 'none'; }
 
     async function fetchNews(append = false, isSearch = false) {
         const feed = document.getElementById('feed');
         const loader = document.getElementById('loader');
-        const searchVal = document.getElementById('search').value;
         const moreBtn = document.getElementById('loadMore');
+        const searchVal = document.getElementById('search').value;
 
         if(!append) { feed.innerHTML = ""; page = 1; } else { page++; }
         loader.style.display = "block";
@@ -111,13 +95,11 @@
         const apiKey = localStorage.getItem('dg_key') || prompt("Groq Key:");
         localStorage.setItem('dg_key', apiKey);
 
-        const systemPrompt = `DATE: Feb 22, 2026. MODE: ${isSearch ? 'SEARCH (Any Year)' : 'STRICT 2026'}. CATEGORY: ${currentCat}.
-        TRUTH ANCHORS: GTA VI is Nov 19 2026. Artemis II roll-back Feb 21. Milan Olympics Closing is TONIGHT. Samsung S26 Unpacked Feb 25.
-        RULES:
-        1. Return exactly 6 distinct articles.
-        2. If news is unverified/fake for 2026, DO NOT SHOW IT.
-        3. 'dossier' field must contain 3-4 paragraphs of deep info.
-        Return JSON: {"articles": [{"tag":"", "title":"", "summary":"", "dossier":"", "img_keywords":""}]}`;
+        // This prompt ensures Interest Tabs show DIFFERENT news
+        const sysPrompt = `DATE: Feb 22, 2026. INTEREST: ${activeCat}. SEARCH: ${searchVal}. 
+        STRICT 2026 DATA: GTA VI (Nov 19), Milan Olympics (Ends today), Artemis II (Rollback to VAB), Samsung S26 leaks.
+        REQUEST: Return exactly 6 unique news articles. Each MUST be related specifically to the ${activeCat} category.
+        Return JSON: {"articles": [{"title": "", "summary": "", "full": "300 words of technical detail", "img_tag": "specific visual keyword"}]}`;
 
         try {
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -125,7 +107,7 @@
                 headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
-                    messages: [{role: "user", content: systemPrompt}],
+                    messages: [{role: "user", content: sysPrompt}],
                     response_format: { type: "json_object" }
                 })
             });
@@ -133,62 +115,32 @@
             const result = JSON.parse(data.choices[0].message.content);
             loader.style.display = "none";
 
-            result.articles.forEach((item, idx) => {
-                const img = `https://loremflickr.com/800/600/${encodeURIComponent(item.img_keywords)}?sig=${Math.random()}`;
+            result.articles.forEach(item => {
+                // FIXED IMAGE LOGIC: Uses unique keywords + seed to prevent duplicate images
+                const img = `https://loremflickr.com/800/600/${encodeURIComponent(item.img_tag || 'news')}?sig=${Math.floor(Math.random() * 1000)}`;
                 feed.innerHTML += `
                     <div class="card">
-                        <img src="${img}">
-                        <div class="card-content">
-                            <span class="card-tag">${item.tag}</span>
-                            <h2 style="margin:0 0 10px 0; font-size:19px">${item.title}</h2>
-                            <p style="font-size:14px; color:var(--meta); margin:0">${item.summary}</p>
-                            <button class="btn-full" onclick='openDossier(\`${item.title}\`, \`${item.dossier.replace(/'/g, "&apos;")}\`, \`${img}\`)'>READ FULL DOSSIER</button>
+                        <img src="${img}" class="card-img" onerror="this.src='https://via.placeholder.com/800x400/1e293b/ffffff?text=Image+Not+Available'">
+                        <div class="card-body">
+                            <span class="tag">${activeCat}</span>
+                            <h2 style="margin:10px 0;">${item.title}</h2>
+                            <p style="font-size:14px; color:var(--dim);">${item.summary}</p>
+                            <button class="btn-open" onclick="openDossier(\`${item.title}\`, \`${item.full.replace(/'/g, "&apos;")}\`, \`${img}\`)">VIEW FULL DOSSIER</button>
                         </div>
                     </div>
                 `;
             });
             moreBtn.style.display = "block";
-        } catch (e) { loader.innerText = "Error syncing data."; }
+        } catch (e) { loader.innerText = "Error loading 2026 data stream."; }
     }
 
-    function openDossier(title, body, img) {
-        document.getElementById('dossier').style.display = "block";
-        document.getElementById('dossierBody').innerHTML = `
+    function openDossier(title, full, img) {
+        document.getElementById('dossier').style.display = 'block';
+        document.getElementById('dossierContent').innerHTML = `
             <img src="${img}" class="dossier-img">
-            <h1 style="margin-top:0">${title}</h1>
-            <div style="font-size:16px; line-height:1.8; color:var(--meta)">${body}</div>
-            <div style="margin-top:40px; padding:20px; background:#1e293b; border-radius:12px; font-size:12px">
-                <b>OFFICIAL SOURCE:</b> Global News Relay (2026 Archive)<br>
-                <b>VERIFICATION:</b> Ground Truth Confirmed via Satellite Node
-            </div>
+            <h1 style="font-size: 28px; color: var(--accent);">${title}</h1>
+            <div style="font-size: 16px; line-height: 1.8; color: var(--dim);">${full}</div>
         `;
-    }
-
-    async function chat() {
-        const input = document.getElementById('chatIn');
-        const msgs = document.getElementById('chatMsgs');
-        const text = input.value;
-        if(!text) return;
-        msgs.innerHTML += `<div style="text-align:right; margin:10px 0; color:var(--accent)"><b>You:</b> ${text}</div>`;
-        input.value = "";
-
-        const apiKey = localStorage.getItem('dg_key');
-        try {
-            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    model: "llama-3.3-70b-versatile",
-                    messages: [
-                        {role: "system", content: "You are Globe Buddy. Today is Feb 22, 2026. Use facts: GTA 6 is Nov 19 2026. Artemis II delayed to April. Olympics end today."},
-                        {role: "user", content: text}
-                    ]
-                })
-            });
-            const data = await res.json();
-            msgs.innerHTML += `<div style="margin:10px 0;"><b>Buddy:</b> ${data.choices[0].message.content}</div>`;
-            msgs.scrollTop = msgs.scrollHeight;
-        } catch(e) { msgs.innerHTML += `<div>Error connecting.</div>`; }
     }
 
     if(localStorage.getItem('dg_key')) fetchNews();
