@@ -3,147 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Globe V12 | Hard Truth Protocol</title>
+    <title>Daily Globe V13 | Obsidian Protocol</title>
     <style>
-        :root { --bg: #f8fafc; --primary: #0f172a; --accent: #3b82f6; --truth: #10b981; --fake: #ef4444; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: #1e293b; transition: 0.3s; }
-        
-        /* HEADER & TABS */
-        .header { background: #fff; padding: 15px; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 1000; display: flex; align-items: center; justify-content: space-between; }
-        .logo { font-weight: 900; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
-        .tabs { display: flex; overflow-x: auto; padding: 10px; background: #fff; gap: 10px; border-bottom: 1px solid #e2e8f0; }
-        .tab { padding: 8px 16px; border-radius: 20px; border: 1px solid #e2e8f0; cursor: pointer; white-space: nowrap; font-size: 13px; font-weight: 600; }
-        .tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        :root { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #3b82f6; --primary: #2563eb; }
+        body { font-family: 'Inter', -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); overflow-x: hidden; }
 
-        /* SIDEBAR & ROADMAP */
-        .sidebar { position: fixed; left: -300px; top: 0; width: 280px; height: 100%; background: var(--primary); color: #fff; z-index: 3000; transition: 0.4s ease; padding: 30px 20px; }
+        /* HEADER & UI ELEMENTS */
+        .header { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); padding: 15px; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: space-between; }
+        .logo { font-weight: 900; letter-spacing: 2px; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+        .planet { font-size: 24px; animation: rotate 20s linear infinite; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* SIDEBAR (FIXED) */
+        .sidebar { position: fixed; left: -300px; top: 0; width: 280px; height: 100%; background: #000; z-index: 3000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); padding: 40px 20px; border-right: 1px solid var(--accent); }
         .sidebar.open { left: 0; }
-        .roadmap-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 5000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .roadmap-content { background: #fff; border-radius: 24px; padding: 30px; max-width: 400px; width: 100%; color: #000; max-height: 80vh; overflow-y: auto; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; z-index: 2000; }
 
-        /* CARDS & TRUTH ENGINE */
-        .container { max-width: 500px; margin: 0 auto; padding: 15px; }
-        .card { background: #fff; border-radius: 28px; margin-bottom: 25px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; position: relative; }
-        .card img { width: 100%; height: 260px; object-fit: cover; }
+        /* INTEREST TABS */
+        .tabs { display: flex; overflow-x: auto; padding: 15px; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); scrollbar-width: none; }
+        .tab { padding: 8px 18px; border-radius: 20px; background: var(--card); border: 1px solid rgba(255,255,255,0.1); cursor: pointer; white-space: nowrap; font-size: 13px; font-weight: 600; color: #94a3b8; }
+        .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        /* SEARCH BAR */
+        .search-container { padding: 10px 15px; }
+        .search-input { width: 100%; padding: 12px 20px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); background: var(--card); color: #fff; outline: none; box-sizing: border-box; }
+
+        /* FEED & CARDS */
+        .container { max-width: 550px; margin: 0 auto; padding: 15px; }
+        .card { background: var(--card); border-radius: 24px; margin-bottom: 25px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); position: relative; }
+        .card img { width: 100%; height: 280px; object-fit: cover; }
         .card-body { padding: 20px; }
-        .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 10px; margin-bottom: 12px; }
-        .badge-truth { background: #ecfdf5; color: var(--truth); border: 1px solid var(--truth); }
-        .badge-fake { background: #fef2f2; color: var(--fake); border: 1px solid var(--fake); }
-        
-        /* AR BUTTON */
-        .ar-btn { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); font-size: 20px; }
+        .card-tag { color: var(--accent); font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; display: block; }
+        .btn-fullscreen { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 12px; font-size: 12px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); }
+        .btn-ar { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); padding: 8px; border-radius: 50%; font-size: 18px; border: none; cursor: pointer; }
 
-        /* BUDDY 3.0 */
-        .buddy-fab { position: fixed; bottom: 25px; right: 25px; width: 65px; height: 65px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 10px 25px rgba(59,130,246,0.5); cursor: pointer; z-index: 4000; }
-        .buddy-chat { position: fixed; bottom: 100px; right: 25px; width: 340px; height: 480px; background: #fff; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); display: none; flex-direction: column; overflow: hidden; z-index: 4001; }
-        .chat-header { background: var(--primary); color: #fff; padding: 20px; font-weight: 700; display: flex; justify-content: space-between; }
-        .chat-msgs { flex: 1; padding: 20px; overflow-y: auto; background: #f8fafc; font-size: 14px; }
-        .chat-input { padding: 15px; border-top: 1px solid #e2e8f0; display: flex; gap: 10px; }
-        
-        /* FEED CONTROLS */
-        .btn-more { width: 100%; padding: 18px; background: #fff; border: 2px solid #e2e8f0; border-radius: 20px; font-weight: 800; cursor: pointer; margin-bottom: 40px; color: var(--primary); }
+        /* FULLSCREEN MODAL */
+        .modal { position: fixed; inset: 0; background: var(--bg); z-index: 4000; display: none; overflow-y: auto; padding: 30px 20px; }
+        .close-modal { position: sticky; top: 0; background: var(--accent); color: #fff; border: none; padding: 12px; border-radius: 12px; width: 100%; margin-bottom: 20px; font-weight: 700; cursor: pointer; }
+
+        /* AI BUDDY 4.0 */
+        .buddy-fab { position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4); cursor: pointer; z-index: 1000; border: 2px solid rgba(255,255,255,0.2); }
+        .buddy-chat { position: fixed; bottom: 95px; right: 25px; width: 320px; height: 450px; background: var(--card); border-radius: 24px; display: none; flex-direction: column; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.5); z-index: 1001; }
+        .chat-header { background: var(--accent); padding: 15px; font-weight: 700; display: flex; justify-content: space-between; }
+        .chat-body { flex: 1; padding: 15px; overflow-y: auto; font-size: 13px; line-height: 1.6; }
+        .chat-input { padding: 10px; display: flex; gap: 5px; border-top: 1px solid rgba(255,255,255,0.1); }
+
+        .btn-more { width: 100%; padding: 18px; background: var(--card); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 20px; font-weight: 800; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
 
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
     <div class="sidebar" id="sidebar">
-        <h1 style="color:var(--accent)">GLOBE</h1>
-        <p style="font-size:12px; opacity:0.6">FEBRUARY 22, 2026</p>
+        <h1 style="color:var(--accent); font-size: 24px;">GLOBE V13</h1>
         <hr style="opacity:0.1; margin: 20px 0;">
-        <div onclick="location.reload()" style="padding:15px 0; cursor:pointer">🏠 Home Feed</div>
-        <div onclick="toggleRoadmap()" style="padding:15px 0; cursor:pointer">🗓️ 2026 Roadmap</div>
-        <div onclick="promptKey()" style="padding:15px 0; cursor:pointer">🔑 Update API Key</div>
-        <div onclick="localStorage.clear(); location.reload()" style="padding:15px 0; color:var(--fake); margin-top:50px; cursor:pointer">🚪 Reset All</div>
+        <div class="tab" style="margin-bottom:10px" onclick="toggleRoadmap()">📅 2026 Roadmap</div>
+        <div class="tab" style="margin-bottom:10px" onclick="location.reload()">🏠 Reset Feed</div>
+        <div class="tab" style="margin-bottom:10px" onclick="updateKey()">🔑 Update API Key</div>
+        <p style="font-size:11px; opacity:0.4; margin-top:50px">Protocol: Obsidian Ground-Truth</p>
     </div>
 
     <div class="header">
-        <button onclick="toggleMenu()" style="background:none; border:none; font-size:24px; cursor:pointer">☰</button>
-        <div class="logo">🌍 DAILY GLOBE</div>
+        <button onclick="toggleMenu()" style="background:none; border:none; font-size:24px; color:#fff; cursor:pointer">☰</button>
+        <div class="logo"><span class="planet">🌍</span> DAILY GLOBE</div>
         <div style="width:24px"></div>
     </div>
 
     <div class="tabs">
-        <div class="tab active" onclick="setTab('Trending', this)">Trending</div>
-        <div class="tab" onclick="setTab('Gaming', this)">🎮 Gaming</div>
-        <div class="tab" onclick="setTab('Olympics', this)">🏅 Olympics</div>
-        <div class="tab" onclick="setTab('Space', this)">🚀 Space</div>
+        <div class="tab active" onclick="setInterest('Home', this)">Home (2026)</div>
+        <div class="tab" onclick="setInterest('Gaming', this)">Gaming</div>
+        <div class="tab" onclick="setInterest('Tech', this)">Tech</div>
+        <div class="tab" onclick="setInterest('Sport', this)">Sport</div>
+        <div class="tab" onclick="setInterest('Cars', this)">Cars</div>
+        <div class="tab" onclick="setInterest('Cooking', this)">Cooking</div>
+        <div class="tab" onclick="setInterest('Politics', this)">Politics</div>
     </div>
 
-    <div style="padding: 10px 15px;">
-        <input type="text" id="search" placeholder="Search verified 2026 records..." 
-               style="width:100%; padding:12px 20px; border-radius:30px; border:1px solid #e2e8f0; outline:none; box-sizing:border-box" 
-               onkeypress="if(event.key=='Enter') fetchNews()">
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search any year (2024, 2025, 2026)..." onkeypress="if(event.key=='Enter') fetchNews(false, true)">
     </div>
 
     <div class="container">
         <div id="feed"></div>
-        <div id="loader" style="text-align:center; display:none; padding:40px">
-            <div style="animation: spin 1s linear infinite; font-size:30px">🌀</div>
-            <p>Verifying Ground Truth...</p>
-        </div>
+        <div id="loader" style="text-align:center; display:none; padding:40px">📡 Verifying 2026 Timeline...</div>
         <button id="loadMore" class="btn-more" onclick="fetchNews(true)" style="display:none">LOAD MORE NEWS</button>
+    </div>
+
+    <div class="modal" id="fullscreenModal">
+        <button class="close-modal" onclick="closeFullscreen()">CLOSE FULLSCREEN</button>
+        <div id="fullContent"></div>
     </div>
 
     <div class="buddy-fab" onclick="toggleBuddy()">🤖</div>
     <div class="buddy-chat" id="buddyWindow">
-        <div class="chat-header"><span>Buddy 3.0</span><span onclick="toggleBuddy()" style="cursor:pointer">✕</span></div>
-        <div class="chat-msgs" id="chatMsgs"><b>Buddy:</b> It's Feb 22, 2026. Olympics end tonight. Artemis II is in rollback. How can I verify your reality?</div>
+        <div class="chat-header"><span>Globe Buddy 4.0</span><span onclick="toggleBuddy()" style="cursor:pointer">✕</span></div>
+        <div class="chat-body" id="chatMsgs"><b>Buddy:</b> I'm connected to the 2026 API. Ask me about GTA VI, the Olympics, or Artemis II.</div>
         <div class="chat-input">
-            <input type="text" id="chatIn" placeholder="Ask about 2026..." style="flex:1; border:none; outline:none" onkeypress="if(event.key=='Enter') chat()">
-            <button onclick="chat()" style="border:none; background:none; cursor:pointer">🚀</button>
-        </div>
-    </div>
-
-    <div class="roadmap-modal" id="roadmap" onclick="toggleRoadmap()">
-        <div class="roadmap-content" onclick="event.stopPropagation()">
-            <h2 style="margin-top:0">2026 ROADMAP</h2>
-            <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
-                <p><b>JAN:</b> Australian Open / Davos 2026</p>
-                <p><b>FEB:</b> Winter Olympics (Milan) / S26 Launch</p>
-                <p><b>MAR:</b> Pokémon Pokopia Release (Switch 2)</p>
-                <p><b>APR:</b> Artemis II Target Launch Window</p>
-                <p><b>JUNE:</b> FIFA World Cup (US/CAN/MEX)</p>
-                <p><b>NOV:</b> GTA VI Global Release (Nov 19)</p>
-            </div>
-            <button class="btn-more" onclick="toggleRoadmap()">Close</button>
+            <input type="text" id="buddyInput" placeholder="Ask Buddy..." style="flex:1; background:none; border:none; color:#fff; outline:none;" onkeypress="if(event.key=='Enter') chat()">
+            <button onclick="chat()" style="border:none; background:none; color:var(--accent); cursor:pointer">Send</button>
         </div>
     </div>
 
 <script>
+    let activeInterest = "Home";
     let currentPage = 1;
-    let currentCategory = "Trending";
 
-    function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); }
+    function toggleMenu() { 
+        const s = document.getElementById('sidebar');
+        const o = document.getElementById('overlay');
+        s.classList.toggle('open');
+        o.style.display = s.classList.contains('open') ? 'block' : 'none';
+    }
+
     function toggleBuddy() { const w = document.getElementById('buddyWindow'); w.style.display = w.style.display === 'flex' ? 'none' : 'flex'; }
-    function toggleRoadmap() { const r = document.getElementById('roadmap'); r.style.display = r.style.display === 'flex' ? 'none' : 'flex'; }
-    function setTab(cat, el) {
+
+    function setInterest(interest, el) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         el.classList.add('active');
-        currentCategory = cat;
+        activeInterest = interest;
+        document.getElementById('searchInput').value = ""; // Clear search when tab changes
         fetchNews();
     }
 
-    async function fetchNews(append = false) {
+    async function fetchNews(append = false, isSearch = false) {
         const feed = document.getElementById('feed');
         const loader = document.getElementById('loader');
         const moreBtn = document.getElementById('loadMore');
-        const searchVal = document.getElementById('search').value;
+        const searchVal = document.getElementById('searchInput').value;
 
-        if(!append) { feed.innerHTML = ""; currentPage = 1; }
-        else { currentPage++; }
-
+        if(!append) { feed.innerHTML = ""; currentPage = 1; } else { currentPage++; }
         loader.style.display = "block";
         moreBtn.style.display = "none";
 
-        const apiKey = localStorage.getItem('dg_key') || prompt("Groq Key:");
+        const apiKey = localStorage.getItem('dg_key') || prompt("Enter Groq Key:");
         localStorage.setItem('dg_key', apiKey);
 
-        // TRUTH PROTOCOL PROMPT
-        const promptTxt = `DATE: Feb 22, 2026. Page: ${currentPage}. Category: ${currentCategory}. Search: "${searchVal}".
-        STRICT RULES:
-        1. If Search is non-existent (e.g. "Aliens land"), return "verified": false.
-        2. Reality Context: GTA VI delayed to Nov 19 2026. Switch 2 out since 2025. Resident Evil Requiem Feb 27. Olympics closing tonight.
-        3. Return JSON: {"articles": [{"title":"", "body":"", "verified": true, "img_keywords": "specific tags", "sources": "NASA, IGN"}]}`;
+        const promptTxt = isSearch 
+            ? `SEARCH MODE: Historical or Current. Query: "${searchVal}". Page: ${currentPage}. Provide 3 real news articles from any year requested.`
+            : `2026 PROTOCOL: Strictly Feb 22, 2026. Interest: ${activeInterest}. Page: ${currentPage}. If the news isn't a documented 2026 event (GTA VI delay, Artemis II leak, Milan Olympics Closing), return an empty list.`;
+
+        const finalPrompt = promptTxt + ` Return JSON: {"news": [{"tag": "", "title": "", "summary": "", "full": "Long detailed article text with sources", "img": "3 visual keywords", "ar": true}]}`;
 
         try {
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -151,7 +150,7 @@
                 headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
-                    messages: [{role: "user", content: promptTxt}],
+                    messages: [{role: "user", content: finalPrompt}],
                     response_format: { type: "json_object" }
                 })
             });
@@ -159,49 +158,70 @@
             const result = JSON.parse(data.choices[0].message.content);
             loader.style.display = "none";
 
-            result.articles.forEach(item => {
-                const isVerified = item.verified !== false;
-                const img = `https://loremflickr.com/800/600/${encodeURIComponent(item.img_keywords)}?lock=${Math.random()}`;
-                
+            if(!result.news || result.news.length === 0) {
+                if(!append) feed.innerHTML = "<p style='text-align:center; padding:40px; opacity:0.5;'>⚠️ No unverified data shown. This event did not occur in the 2026 record.</p>";
+                return;
+            }
+
+            result.news.forEach(item => {
+                const img = `https://loremflickr.com/800/600/${encodeURIComponent(item.img.split(' ')[0])}?lock=${Math.random()}`;
                 feed.innerHTML += `
-                    <div class="card" style="opacity: ${isVerified ? '1' : '0.7'}">
-                        <button class="ar-btn" onclick="alert('Starting AR Vision...')">🧊</button>
+                    <div class="card">
+                        <button class="btn-fullscreen" onclick="openFullscreen(\`${item.title}\`, \`${item.full}\`, \`${img}\`)">📑 FULLSCREEN</button>
+                        ${item.ar ? '<button class="btn-ar">🧊</button>' : ''}
                         <img src="${img}">
                         <div class="card-body">
-                            <div class="badge ${isVerified ? 'badge-truth' : 'badge-fake'}">
-                                ${isVerified ? '🛡️ Ground Truth Verified' : '⚠️ Unverified/Rumor'}
-                            </div>
-                            <h2 style="margin:0 0 10px 0; font-size:20px;">${item.title}</h2>
-                            <p style="font-size:14px; color:#475569; line-height:1.6">${item.body}</p>
-                            <p style="font-size:11px; opacity:0.5; margin-top:15px">Sources: ${item.sources}</p>
+                            <span class="card-tag">${item.tag}</span>
+                            <h2 style="margin:0 0 10px 0;">${item.title}</h2>
+                            <p style="font-size:14px; opacity:0.8; line-height:1.6;">${item.summary}</p>
                         </div>
                     </div>
                 `;
             });
             moreBtn.style.display = "block";
-        } catch (e) { loader.innerText = "Connection Failed."; }
+        } catch (e) { loader.innerText = "Connection Error."; }
     }
+
+    function openFullscreen(title, content, img) {
+        document.getElementById('fullscreenModal').style.display = "block";
+        document.getElementById('fullContent').innerHTML = `
+            <img src="${img}" style="width:100%; border-radius:20px; margin-bottom:20px;">
+            <h1 style="color:var(--accent)">${title}</h1>
+            <p style="font-size:18px; line-height:1.8; opacity:0.9;">${content}</p>
+        `;
+    }
+
+    function closeFullscreen() { document.getElementById('fullscreenModal').style.display = "none"; }
 
     async function chat() {
-        const i = document.getElementById('chatIn');
-        const m = document.getElementById('chatMsgs');
-        if(!i.value) return;
-        m.innerHTML += `<div style="text-align:right; margin:10px 0"><b>You:</b> ${i.value}</div>`;
-        const q = i.value.toLowerCase();
-        i.value = "";
+        const input = document.getElementById('buddyInput');
+        const msgs = document.getElementById('chatMsgs');
+        const text = input.value;
+        if(!text) return;
         
-        setTimeout(() => {
-            let r = "I am cross-referencing that with the 2026 Ground Truth database...";
-            if(q.includes("gta")) r = "GTA VI is scheduled for Nov 19, 2026 on PS5/Xbox. No PC date has been confirmed by Rockstar yet.";
-            if(q.includes("switch")) r = "The Switch 2 launched in 2025. This month's big hit is Resident Evil Requiem (Feb 27).";
-            if(q.includes("olympic")) r = "Verona is hosting the Closing Ceremony tonight. USA and Canada are currently playing for Hockey Gold!";
-            m.innerHTML += `<div style="color:var(--accent); margin:10px 0"><b>Buddy:</b> ${r}</div>`;
-            m.scrollTop = m.scrollHeight;
-        }, 500);
+        msgs.innerHTML += `<div style="text-align:right; margin:10px 0; color:var(--accent)"><b>You:</b> ${text}</div>`;
+        input.value = "";
+
+        const apiKey = localStorage.getItem('dg_key');
+        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+                model: "llama-3.3-70b-versatile",
+                messages: [{role: "system", content: "You are Globe Buddy. Today is Feb 22, 2026. Be witty and factual about 2026 events."}, {role: "user", content: text}]
+            })
+        });
+        const data = await res.json();
+        const reply = data.choices[0].message.content;
+        msgs.innerHTML += `<div style="margin:10px 0;"><b>Buddy:</b> ${reply}</div>`;
+        msgs.scrollTop = msgs.scrollHeight;
     }
 
-    function promptKey() { const k = prompt("Enter Key:"); if(k) localStorage.setItem('dg_key', k); location.reload(); }
+    function updateKey() { const k = prompt("New API Key:"); if(k) localStorage.setItem('dg_key', k); location.reload(); }
+    function toggleRoadmap() { alert("2026 Milestones:\n- FEB 22: Olympic Closing Ceremony\n- FEB 25: Samsung Unpacked\n- MAR 6: Artemis II Launch Window\n- NOV 19: GTA VI Launch"); }
+
     if(localStorage.getItem('dg_key')) fetchNews();
 </script>
 </body>
 </html>
+
