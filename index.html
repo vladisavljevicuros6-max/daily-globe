@@ -3,92 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Globe - 2026 Edition</title>
+    <title>Daily Globe V3</title>
     <style>
-        :root { --bg: #fafafa; --accent: #0095f6; --border: #dbdbdb; --text: #262626; --card: #ffffff; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; overflow-x: hidden; }
+        :root { --bg: #f2f2f7; --accent: #007aff; --card: #ffffff; --text: #1c1c1e; --gray: #8e8e93; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; overflow-x: hidden; }
         
-        /* Headers */
-        .header { background: var(--card); border-bottom: 1px solid var(--border); padding: 15px; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; }
-        .header h1 { font-size: 22px; margin: 0; font-style: italic; font-weight: 800; flex-grow: 1; text-align: center; }
-        .back-btn { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0; width: 30px; }
-        .spacer { width: 30px; } /* For flex balance */
+        /* Nav & Header */
+        .header { background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #e5e5ea; padding: 15px; position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; }
+        .header h1 { font-size: 20px; margin: 0; font-weight: 800; letter-spacing: -0.5px; }
+        .icon-btn { background: none; border: none; font-size: 22px; cursor: pointer; padding: 5px; }
+        
+        /* Side Menu */
+        .side-menu { position: fixed; top: 0; left: -280px; width: 250px; height: 100vh; background: var(--card); z-index: 100; box-shadow: 2px 0 15px rgba(0,0,0,0.1); transition: 0.3s; padding: 20px; }
+        .side-menu.open { left: 0; }
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 90; display: none; }
+        .menu-item { padding: 15px 0; border-bottom: 1px solid #eee; font-weight: 600; font-size: 16px; cursor: pointer; }
+        
+        /* Search Bar */
+        .search-container { padding: 15px; background: var(--card); display: none; border-bottom: 1px solid #e5e5ea; }
+        .search-container input { width: 100%; padding: 10px 15px; border-radius: 20px; border: 1px solid #ccc; background: #eee; font-size: 15px; box-sizing: border-box; outline: none; }
 
-        .container { max-width: 480px; margin: 0 auto; padding: 15px; }
-        
-        /* Multi-Page Logic */
-        .page { display: none; animation: slideIn 0.3s ease-out; }
+        .container { max-width: 500px; margin: 0 auto; padding: 15px; }
+        .page { display: none; animation: fadeIn 0.3s ease; }
         .page.active { display: block; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Stories Bar (Algorithm Sorted) */
-        .stories { display: flex; gap: 15px; overflow-x: auto; padding: 10px 0 20px; scrollbar-width: none; }
-        .story { display: flex; flex-direction: column; align-items: center; min-width: 75px; cursor: pointer; }
-        .ring { width: 64px; height: 64px; border-radius: 50%; border: 2px solid #dbdbdb; padding: 3px; transition: 0.2s; }
-        .story.active .ring { border-color: #fd1d1d; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
-        .ring img { width: 100%; height: 100%; border-radius: 50%; background: #eee; object-fit: cover; border: 2px solid white; box-sizing: border-box; }
+        /* Story Algorithm Bubbles */
+        .stories { display: flex; gap: 12px; overflow-x: auto; padding: 10px 0 20px; scrollbar-width: none; }
+        .story { display: flex; flex-direction: column; align-items: center; min-width: 70px; cursor: pointer; opacity: 0.7; transition: 0.2s; }
+        .story.active { opacity: 1; transform: scale(1.05); }
+        .ring { width: 64px; height: 64px; border-radius: 50%; border: 3px solid transparent; padding: 2px; }
+        .story.active .ring { border-color: var(--accent); }
+        .ring img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #ddd; }
         .story span { font-size: 12px; margin-top: 6px; font-weight: 600; }
 
-        /* UI Elements */
-        .card { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        input { width: 100%; padding: 14px; margin: 15px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        .btn { background: var(--accent); color: #fff; border: none; width: 100%; padding: 15px; font-size: 16px; font-weight: 700; border-radius: 8px; cursor: pointer; transition: 0.2s; }
-        .btn:active { transform: scale(0.98); }
-        
-        /* Feed Posts */
-        .post { background: var(--card); border: 1px solid var(--border); margin-bottom: 20px; border-radius: 8px; overflow: hidden; }
-        .p-head { padding: 12px 15px; display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 14px; border-bottom: 1px solid #efefef; }
-        .avatar { width: 32px; height: 32px; border-radius: 50%; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-        .p-body { padding: 18px 15px; font-size: 15px; line-height: 1.6; }
-        .p-actions { padding: 10px 15px 5px; font-size: 22px; display: flex; gap: 15px; }
-        .p-foot { padding: 5px 15px 15px; color: var(--text); font-weight: 600; font-size: 13px; }
+        /* Setup UI */
+        .card { background: var(--card); padding: 25px; border-radius: 16px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        input[type="password"] { width: 100%; padding: 14px; margin: 15px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
+        .btn { background: var(--accent); color: #fff; border: none; width: 100%; padding: 15px; font-size: 16px; font-weight: 700; border-radius: 10px; cursor: pointer; }
 
-        #loader { text-align: center; padding: 40px 20px; color: var(--gray); font-weight: 600; font-size: 16px; }
-        .spinner { font-size: 30px; animation: spin 1s linear infinite; display: inline-block; margin-bottom: 10px; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        /* Feed Posts with Images */
+        .post { background: var(--card); margin-bottom: 20px; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .p-head { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 14px; }
+        .p-topic { background: #eee; padding: 4px 10px; border-radius: 12px; font-size: 11px; color: var(--accent); text-transform: uppercase; }
+        .p-img { width: 100%; height: 250px; background: #ddd; object-fit: cover; }
+        .p-body { padding: 15px; }
+        .p-title { font-size: 18px; font-weight: 800; margin: 0 0 10px 0; line-height: 1.3; }
+        .p-text { font-size: 15px; color: #444; line-height: 1.5; margin: 0; }
+        .p-actions { padding: 10px 15px 15px; display: flex; gap: 20px; border-top: 1px solid #f0f0f0; }
+        .like-btn { cursor: pointer; font-size: 24px; transition: 0.2s; user-select: none; }
+        .like-btn.liked { color: #ff2d55; transform: scale(1.2); }
+
+        #loader { text-align: center; padding: 50px 20px; font-weight: 600; color: var(--gray); display: none; }
     </style>
 </head>
 <body>
 
+    <div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()"></div>
+    <div id="sideMenu" class="side-menu">
+        <h2 style="margin-top:0">Globe Menu</h2>
+        <div class="menu-item" onclick="navTo('page-home'); toggleMenu();">🏠 Home</div>
+        <div class="menu-item" onclick="alert('Profile coming soon!')">👤 Profile</div>
+        <div class="menu-item" onclick="alert('Saved Posts coming soon!')">🔖 Saved</div>
+        <div class="menu-item" onclick="resetApp()" style="color:red">🚪 Logout / Reset</div>
+    </div>
+
+    <div class="header">
+        <button class="icon-btn" onclick="toggleMenu()">☰</button>
+        <h1>Daily Globe</h1>
+        <button class="icon-btn" onclick="toggleSearch()">🔍</button>
+    </div>
+
+    <div id="searchBar" class="search-container">
+        <input type="text" id="searchInput" placeholder="Search or type a custom topic..." onkeypress="handleSearch(event)">
+    </div>
+
     <div id="page-setup" class="page container active">
-        <div class="header" style="position:relative; margin-bottom:20px; border-radius:12px;"><h1>Daily Globe</h1></div>
         <div class="card">
-            <h3>Connect API</h3>
-            <p style="font-size:13px; color:gray">Paste your Groq Key to continue.</p>
+            <h2>API Connection</h2>
+            <p style="font-size:13px; color:var(--gray)">Enter Groq API Key to sync with the 2026 Satellite.</p>
             <input type="password" id="apiKey" placeholder="gsk_...">
-            <button class="btn" onclick="saveKey()">Start Browsing</button>
+            <button class="btn" onclick="saveKey()">Connect</button>
         </div>
     </div>
 
-    <div id="page-home" class="page">
-        <div class="header">
-            <div class="spacer"></div>
-            <h1>Daily Globe</h1>
-            <div class="spacer"></div>
-        </div>
-        <div class="container">
-            <h3 style="margin-top:0;">What are you into?</h3>
-            <div class="stories" id="storiesContainer">
-                </div>
-            <button class="btn" onclick="generateFeed()">Load My Feed</button>
-            <p onclick="logout()" style="text-align:center; font-size:12px; color:gray; cursor:pointer; margin-top:25px;">Logout</p>
-        </div>
+    <div id="page-home" class="page container">
+        <h3>Top Topics</h3>
+        <p style="font-size:12px; color:var(--gray); margin-top:-10px;">Sorted by your algorithm</p>
+        <div class="stories" id="storiesContainer"></div>
+        <button class="btn" onclick="generateFeed()" style="margin-top:10px;">Generate AI Feed 🚀</button>
     </div>
 
-    <div id="page-feed" class="page">
-        <div class="header">
-            <button class="back-btn" onclick="navTo('page-home')">🔙</button>
-            <h1>For You</h1>
-            <div class="spacer"></div>
-        </div>
-        <div class="container">
-            <div id="loader"><div class="spinner">🛰️</div><br>Syncing 2026 data...</div>
-            <div id="feedContent"></div>
-        </div>
+    <div id="page-feed" class="page container">
+        <button onclick="navTo('page-home')" style="background:none; border:none; color:var(--accent); font-weight:bold; cursor:pointer; padding:10px 0;">🔙 Back to Menu</button>
+        <div id="loader">📡 Generating 2026 News & Images...<br><small style="font-weight:normal">This takes about 5 seconds</small></div>
+        <div id="feedContent"></div>
     </div>
 
 <script>
-    // --- 1. ALGORITHM & DATA ---
+    // --- APP DATA & ALGORITHM ---
     let prefs = JSON.parse(localStorage.getItem('dg_algo') || '{}');
     const allTopics = [
         { id: 'Tech', icon: 'https://img.icons8.com/fluency/96/circuit.png' },
@@ -98,10 +111,9 @@
         { id: 'Sport', icon: 'https://img.icons8.com/fluency/96/stadium.png' },
         { id: 'Music', icon: 'https://img.icons8.com/fluency/96/musical-notes.png' }
     ];
-
     let picked = [];
 
-    // --- 2. APP LOGIC ---
+    // --- UI CONTROLS ---
     function init() {
         if(localStorage.getItem('groq_key')) { navTo('page-home'); renderTopics(); }
         else { navTo('page-setup'); }
@@ -110,68 +122,98 @@
     function navTo(pageId) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(pageId).classList.add('active');
+        document.getElementById('searchBar').style.display = 'none';
         window.scrollTo(0, 0);
+    }
+
+    function toggleMenu() {
+        document.getElementById('sideMenu').classList.toggle('open');
+        const overlay = document.getElementById('menuOverlay');
+        overlay.style.display = overlay.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function toggleSearch() {
+        const sb = document.getElementById('searchBar');
+        sb.style.display = sb.style.display === 'block' ? 'none' : 'block';
+        if(sb.style.display === 'block') document.getElementById('searchInput').focus();
     }
 
     function saveKey() {
         const k = document.getElementById('apiKey').value.trim();
         if(k.startsWith('gsk_')) { localStorage.setItem('groq_key', k); init(); }
-        else alert("Invalid Groq Key");
+        else alert("Invalid Groq Key.");
     }
 
-    function logout() { localStorage.clear(); location.reload(); }
+    function resetApp() { localStorage.clear(); location.reload(); }
 
+    // --- ALGORITHM LOGIC ---
     function renderTopics() {
-        // Algorithm: Sort topics by how many times you clicked them
-        const sortedTopics = [...allTopics].sort((a, b) => (prefs[b.id] || 0) - (prefs[a.id] || 0));
+        // Sort topics based on likes/clicks
+        const sorted = [...allTopics].sort((a, b) => (prefs[b.id] || 0) - (prefs[a.id] || 0));
         const container = document.getElementById('storiesContainer');
         container.innerHTML = '';
         
-        sortedTopics.forEach((t, index) => {
-            const isFavorite = index === 0 && (prefs[t.id] > 0);
+        sorted.forEach(t => {
             container.innerHTML += `
                 <div class="story" onclick="toggleStory(this, '${t.id}')">
                     <div class="ring"><img src="${t.icon}"></div>
-                    <span>${t.id} ${isFavorite ? '⭐' : ''}</span>
+                    <span>${t.id}</span>
                 </div>
             `;
         });
-        picked = []; // Reset selections
+        picked = [];
     }
 
     function toggleStory(el, topic) {
         el.classList.toggle('active');
-        if (el.classList.contains('active')) {
-            picked.push(topic);
-        } else {
-            picked = picked.filter(t => t !== topic);
+        if (el.classList.contains('active')) picked.push(topic);
+        else picked = picked.filter(t => t !== topic);
+    }
+
+    function handleSearch(e) {
+        if(e.key === 'Enter') {
+            const val = document.getElementById('searchInput').value.trim();
+            if(val) { picked = [val]; generateFeed(); }
         }
     }
 
-    // --- 3. AI GENERATION ---
-    async function generateFeed() {
-        if(picked.length === 0) return alert("Select at least one topic!");
-        
-        // Update Algorithm memory
-        picked.forEach(t => prefs[t] = (prefs[t] || 0) + 1);
-        localStorage.setItem('dg_algo', JSON.stringify(prefs));
+    // "Like" button logic updates the algorithm
+    function likePost(el, topic) {
+        el.classList.toggle('liked');
+        if(el.classList.contains('liked')) {
+            el.innerText = '❤️';
+            // Boost topic in algorithm
+            prefs[topic] = (prefs[topic] || 0) + 1;
+            localStorage.setItem('dg_algo', JSON.stringify(prefs));
+        } else { el.innerText = '🤍'; }
+    }
 
+    // --- AI GENERATION ---
+    async function generateFeed() {
+        if(picked.length === 0) return alert("Select a topic or use search!");
+        
         navTo('page-feed');
         document.getElementById('loader').style.display = 'block';
         const feed = document.getElementById('feedContent');
         feed.innerHTML = "";
 
-        // The "Time Machine" Prompt
-        const systemPrompt = `You are a Gen-Z news reporter. The current year is 2026. Write 3 highly realistic, viral news posts about the ABSOLUTE LATEST 2026 developments in: ${picked.join(" and ")}. 
-        CRITICAL: Do not mention outdated news (e.g. iPhone 15, PS5 base model). Focus on 2026 tech, 2026 World Cup, 2026 Car models (like the new Honda Prelude or Rivian R2), or current 2026 food trends (like biohacking/fibremaxxing). Make it sound like an Instagram/TikTok caption. Use emojis.`;
+        // Tell AI to return pure JSON
+        const systemPrompt = `You are a Gen-Z news platform in 2026. Write 3 highly realistic, viral 2026 news posts about: ${picked.join(", ")}. 
+        CRITICAL: Respond ONLY with a valid JSON array of objects. Do not wrap in markdown or backticks.
+        Format:
+        [
+            {
+                "topic": "The exact category",
+                "headline": "Catchy short title with emojis",
+                "content": "A 2-sentence highly engaging summary of the 2026 news.",
+                "image_prompt": "A 5-word aesthetic description of the image for an AI generator (e.g., 'cyberpunk 2026 flying car neon')"
+            }
+        ]`;
 
         try {
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${localStorage.getItem('groq_key')}`,
-                    "Content-Type": "application/json"
-                },
+                headers: { "Authorization": `Bearer ${localStorage.getItem('groq_key')}`, "Content-Type": "application/json" },
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
                     messages: [{role: "user", content: systemPrompt}],
@@ -180,29 +222,42 @@
             });
 
             const data = await res.json();
-            const text = data.choices[0].message.content;
+            // Parse the JSON data from Groq
+            let rawText = data.choices[0].message.content.trim();
+            if(rawText.startsWith('```json')) { rawText = rawText.replace(/```json/g, '').replace(/```/g, ''); }
             
-            // Format the text into posts
-            const posts = text.split(/(?:\d\.|🔥|🚨)/).filter(p => p.trim().length > 20);
-
+            const newsItems = JSON.parse(rawText);
             document.getElementById('loader').style.display = 'none';
             
-            posts.forEach(p => {
+            newsItems.forEach(item => {
+                // Generates free images on the fly!
+                const encodedPrompt = encodeURIComponent(item.image_prompt);
+                const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=500&nologo=true&seed=${Math.random()}`;
+
                 feed.innerHTML += `
                     <div class="post">
-                        <div class="p-head"><div class="avatar">DG</div> dailyglobe_official</div>
-                        <div class="p-body">${p.trim().replace(/\n/g, '<br>')}</div>
-                        <div class="p-actions">❤️ 💬 ✈️</div>
-                        <div class="p-foot">${Math.floor(Math.random()*900)+100} likes</div>
+                        <div class="p-head">
+                            <span>Daily Globe</span>
+                            <span class="p-topic">${item.topic}</span>
+                        </div>
+                        <img class="p-img" src="${imageUrl}" alt="AI generated image">
+                        <div class="p-body">
+                            <h4 class="p-title">${item.headline}</h4>
+                            <p class="p-text">${item.content}</p>
+                        </div>
+                        <div class="p-actions">
+                            <span class="like-btn" onclick="likePost(this, '${item.topic}')">🤍</span>
+                            <span class="like-btn" onclick="alert('Share feature coming soon!')">✈️</span>
+                        </div>
                     </div>
                 `;
             });
         } catch (e) {
-            document.getElementById('loader').innerHTML = "❌ Connection Error. Try again.";
+            console.error(e);
+            document.getElementById('loader').innerHTML = "❌ AI Generation Failed. Please try again.";
         }
     }
 
-    // Boot app
     init();
 </script>
 </body>
