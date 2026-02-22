@@ -3,68 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Globe - Groq Powered</title>
+    <title>Daily Globe - 2026 Edition</title>
     <style>
-        :root { --bg: #fafafa; --accent: #0095f6; --border: #dbdbdb; --text: #262626; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
-        .header { background: #fff; border-bottom: 1px solid var(--border); padding: 15px; text-align: center; position: sticky; top: 0; z-index: 10; }
-        .header h1 { font-size: 24px; margin: 0; font-style: italic; font-weight: 800; }
+        :root { --bg: #fafafa; --accent: #0095f6; --border: #dbdbdb; --text: #262626; --card: #ffffff; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; overflow-x: hidden; }
+        
+        /* Headers */
+        .header { background: var(--card); border-bottom: 1px solid var(--border); padding: 15px; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; }
+        .header h1 { font-size: 22px; margin: 0; font-style: italic; font-weight: 800; flex-grow: 1; text-align: center; }
+        .back-btn { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0; width: 30px; }
+        .spacer { width: 30px; } /* For flex balance */
+
         .container { max-width: 480px; margin: 0 auto; padding: 15px; }
         
-        /* Stories Bar */
+        /* Multi-Page Logic */
+        .page { display: none; animation: slideIn 0.3s ease-out; }
+        .page.active { display: block; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* Stories Bar (Algorithm Sorted) */
         .stories { display: flex; gap: 15px; overflow-x: auto; padding: 10px 0 20px; scrollbar-width: none; }
-        .story { display: flex; flex-direction: column; align-items: center; min-width: 70px; cursor: pointer; }
-        .ring { width: 60px; height: 60px; border-radius: 50%; border: 2px solid #fd1d1d; padding: 2px; transition: 0.3s; }
-        .story.active .ring { border-color: var(--accent); background: var(--accent); }
-        .ring img { width: 100%; height: 100%; border-radius: 50%; background: #eee; }
-        .story span { font-size: 11px; margin-top: 5px; font-weight: 600; }
+        .story { display: flex; flex-direction: column; align-items: center; min-width: 75px; cursor: pointer; }
+        .ring { width: 64px; height: 64px; border-radius: 50%; border: 2px solid #dbdbdb; padding: 3px; transition: 0.2s; }
+        .story.active .ring { border-color: #fd1d1d; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+        .ring img { width: 100%; height: 100%; border-radius: 50%; background: #eee; object-fit: cover; border: 2px solid white; box-sizing: border-box; }
+        .story span { font-size: 12px; margin-top: 6px; font-weight: 600; }
 
-        /* App Logic UI */
-        .card { background: #fff; border: 1px solid var(--border); padding: 20px; border-radius: 8px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid var(--border); border-radius: 5px; box-sizing: border-box; }
-        .btn { background: var(--accent); color: #fff; border: none; width: 100%; padding: 12px; font-weight: 700; border-radius: 5px; cursor: pointer; }
+        /* UI Elements */
+        .card { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        input { width: 100%; padding: 14px; margin: 15px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        .btn { background: var(--accent); color: #fff; border: none; width: 100%; padding: 15px; font-size: 16px; font-weight: 700; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .btn:active { transform: scale(0.98); }
         
-        /* Feed */
-        .post { background: #fff; border: 1px solid var(--border); margin-top: 15px; border-radius: 3px; }
-        .p-head { padding: 12px; display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 14px; }
-        .avatar { width: 30px; height: 30px; border-radius: 50%; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; }
-        .p-body { padding: 15px; font-size: 14px; line-height: 1.5; border-top: 1px solid #efefef; }
-        .p-foot { padding: 10px 15px; border-top: 1px solid #efefef; color: var(--accent); font-weight: 600; font-size: 13px; }
+        /* Feed Posts */
+        .post { background: var(--card); border: 1px solid var(--border); margin-bottom: 20px; border-radius: 8px; overflow: hidden; }
+        .p-head { padding: 12px 15px; display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 14px; border-bottom: 1px solid #efefef; }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .p-body { padding: 18px 15px; font-size: 15px; line-height: 1.6; }
+        .p-actions { padding: 10px 15px 5px; font-size: 22px; display: flex; gap: 15px; }
+        .p-foot { padding: 5px 15px 15px; color: var(--text); font-weight: 600; font-size: 13px; }
 
-        #loader { display: none; margin: 20px; font-weight: 700; color: var(--accent); text-align: center; }
+        #loader { text-align: center; padding: 40px 20px; color: var(--gray); font-weight: 600; font-size: 16px; }
+        .spinner { font-size: 30px; animation: spin 1s linear infinite; display: inline-block; margin-bottom: 10px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div class="header"><h1>Daily Globe</h1></div>
-
-    <div class="container">
-        <div id="setup" class="card">
-            <h3>Enter Groq API Key</h3>
-            <p style="font-size:12px; color:gray">Get it free at console.groq.com</p>
+    <div id="page-setup" class="page container active">
+        <div class="header" style="position:relative; margin-bottom:20px; border-radius:12px;"><h1>Daily Globe</h1></div>
+        <div class="card">
+            <h3>Connect API</h3>
+            <p style="font-size:13px; color:gray">Paste your Groq Key to continue.</p>
             <input type="password" id="apiKey" placeholder="gsk_...">
             <button class="btn" onclick="saveKey()">Start Browsing</button>
         </div>
+    </div>
 
-        <div id="app" style="display:none">
-            <div class="stories">
-                <div class="story" onclick="tgl(this, 'Tech')"><div class="ring"><img src="https://img.icons8.com/fluency/96/circuit.png"></div><span>Tech</span></div>
-                <div class="story" onclick="tgl(this, 'Gaming')"><div class="ring"><img src="https://img.icons8.com/fluency/96/controller.png"></div><span>Gaming</span></div>
-                <div class="story" onclick="tgl(this, 'Space')"><div class="ring"><img src="https://img.icons8.com/fluency/96/rocket.png"></div><span>Space</span></div>
-                <div class="story" onclick="tgl(this, 'Music')"><div class="ring"><img src="https://img.icons8.com/fluency/96/musical-notes.png"></div><span>Music</span></div>
-            </div>
-            <button class="btn" onclick="loadFeed()">Refresh Feed</button>
-            <div id="loader">Syncing with Satellite...</div>
-            <div id="feed"></div>
-            <p onclick="localStorage.clear(); location.reload()" style="text-align:center; font-size:10px; color:gray; cursor:pointer; margin-top:20px">Reset API Key</p>
+    <div id="page-home" class="page">
+        <div class="header">
+            <div class="spacer"></div>
+            <h1>Daily Globe</h1>
+            <div class="spacer"></div>
+        </div>
+        <div class="container">
+            <h3 style="margin-top:0;">What are you into?</h3>
+            <div class="stories" id="storiesContainer">
+                </div>
+            <button class="btn" onclick="generateFeed()">Load My Feed</button>
+            <p onclick="logout()" style="text-align:center; font-size:12px; color:gray; cursor:pointer; margin-top:25px;">Logout</p>
+        </div>
+    </div>
+
+    <div id="page-feed" class="page">
+        <div class="header">
+            <button class="back-btn" onclick="navTo('page-home')">🔙</button>
+            <h1>For You</h1>
+            <div class="spacer"></div>
+        </div>
+        <div class="container">
+            <div id="loader"><div class="spinner">🛰️</div><br>Syncing 2026 data...</div>
+            <div id="feedContent"></div>
         </div>
     </div>
 
 <script>
+    // --- 1. ALGORITHM & DATA ---
+    let prefs = JSON.parse(localStorage.getItem('dg_algo') || '{}');
+    const allTopics = [
+        { id: 'Tech', icon: 'https://img.icons8.com/fluency/96/circuit.png' },
+        { id: 'Gaming', icon: 'https://img.icons8.com/fluency/96/controller.png' },
+        { id: 'Cars', icon: 'https://img.icons8.com/fluency/96/car.png' },
+        { id: 'Cooking', icon: 'https://img.icons8.com/fluency/96/cooking-pot.png' },
+        { id: 'Sport', icon: 'https://img.icons8.com/fluency/96/stadium.png' },
+        { id: 'Music', icon: 'https://img.icons8.com/fluency/96/musical-notes.png' }
+    ];
+
     let picked = [];
-    function tgl(el, t) {
-        el.classList.toggle('active');
-        picked = Array.from(document.querySelectorAll('.story.active')).map(s => s.querySelector('span').innerText);
+
+    // --- 2. APP LOGIC ---
+    function init() {
+        if(localStorage.getItem('groq_key')) { navTo('page-home'); renderTopics(); }
+        else { navTo('page-setup'); }
+    }
+
+    function navTo(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        window.scrollTo(0, 0);
     }
 
     function saveKey() {
@@ -73,55 +119,90 @@
         else alert("Invalid Groq Key");
     }
 
-    function init() {
-        if(localStorage.getItem('groq_key')) {
-            document.getElementById('setup').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
+    function logout() { localStorage.clear(); location.reload(); }
+
+    function renderTopics() {
+        // Algorithm: Sort topics by how many times you clicked them
+        const sortedTopics = [...allTopics].sort((a, b) => (prefs[b.id] || 0) - (prefs[a.id] || 0));
+        const container = document.getElementById('storiesContainer');
+        container.innerHTML = '';
+        
+        sortedTopics.forEach((t, index) => {
+            const isFavorite = index === 0 && (prefs[t.id] > 0);
+            container.innerHTML += `
+                <div class="story" onclick="toggleStory(this, '${t.id}')">
+                    <div class="ring"><img src="${t.icon}"></div>
+                    <span>${t.id} ${isFavorite ? '⭐' : ''}</span>
+                </div>
+            `;
+        });
+        picked = []; // Reset selections
+    }
+
+    function toggleStory(el, topic) {
+        el.classList.toggle('active');
+        if (el.classList.contains('active')) {
+            picked.push(topic);
+        } else {
+            picked = picked.filter(t => t !== topic);
         }
     }
 
-    async function loadFeed() {
-        if(picked.length === 0) return alert("Select a topic!");
-        const loader = document.getElementById('loader');
-        const feed = document.getElementById('feed');
-        const key = localStorage.getItem('groq_key');
+    // --- 3. AI GENERATION ---
+    async function generateFeed() {
+        if(picked.length === 0) return alert("Select at least one topic!");
+        
+        // Update Algorithm memory
+        picked.forEach(t => prefs[t] = (prefs[t] || 0) + 1);
+        localStorage.setItem('dg_algo', JSON.stringify(prefs));
 
-        loader.style.display = "block";
+        navTo('page-feed');
+        document.getElementById('loader').style.display = 'block';
+        const feed = document.getElementById('feedContent');
         feed.innerHTML = "";
 
+        // The "Time Machine" Prompt
+        const systemPrompt = `You are a Gen-Z news reporter. The current year is 2026. Write 3 highly realistic, viral news posts about the ABSOLUTE LATEST 2026 developments in: ${picked.join(" and ")}. 
+        CRITICAL: Do not mention outdated news (e.g. iPhone 15, PS5 base model). Focus on 2026 tech, 2026 World Cup, 2026 Car models (like the new Honda Prelude or Rivian R2), or current 2026 food trends (like biohacking/fibremaxxing). Make it sound like an Instagram/TikTok caption. Use emojis.`;
+
         try {
-            // Groq allows direct browser calls MUCH better than Hugging Face
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
                 headers: {
-                    "Authorization": `Bearer ${key}`,
+                    "Authorization": `Bearer ${localStorage.getItem('groq_key')}`,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
-                    messages: [{role: "user", content: `Write 3 viral, short news posts for teens about ${picked.join(" and ")}. Use emojis and a cool tone.`}]
+                    messages: [{role: "user", content: systemPrompt}],
+                    temperature: 0.7
                 })
             });
 
             const data = await res.json();
             const text = data.choices[0].message.content;
-            const posts = text.split(/\d\./).filter(p => p.trim().length > 5);
+            
+            // Format the text into posts
+            const posts = text.split(/(?:\d\.|🔥|🚨)/).filter(p => p.trim().length > 20);
 
+            document.getElementById('loader').style.display = 'none';
+            
             posts.forEach(p => {
                 feed.innerHTML += `
                     <div class="post">
                         <div class="p-head"><div class="avatar">DG</div> dailyglobe_official</div>
                         <div class="p-body">${p.trim().replace(/\n/g, '<br>')}</div>
-                        <div class="p-foot">❤️ Liked by thousands</div>
+                        <div class="p-actions">❤️ 💬 ✈️</div>
+                        <div class="p-foot">${Math.floor(Math.random()*900)+100} likes</div>
                     </div>
                 `;
             });
         } catch (e) {
-            alert("Error: Check your API Key or AdBlocker.");
-        } finally {
-            loader.style.display = "none";
+            document.getElementById('loader').innerHTML = "❌ Connection Error. Try again.";
         }
     }
+
+    // Boot app
     init();
 </script>
 </body>
